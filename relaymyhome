@@ -266,8 +266,8 @@ then
         echo "Pausing to allow connections for ${relay_time} seconds"
         pause_with_progress_dots $relay_time
     done
-
-
+elif [[ $1 == "cleanup" ]]; then
+    echo "Not doing anything, only cleaning up"
 else
     # This set of MACs will be used in standard mode
     # Taken from: https://docs.google.com/spreadsheet/ccc?key=0AvvH5W4E2lIwdEFCUkxrM085ZGp0UkZlenp6SkJablE#gid=0
