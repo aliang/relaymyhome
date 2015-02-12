@@ -2,7 +2,7 @@
 
 # The MIT License (MIT)
 #
-# Copyright (c) 2013-2014 Rob Zimmerman
+# Copyright (c) 2015 Alvin Liang
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -22,10 +22,12 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-# RelayMyHome -- v. 1.1
+# RelayMyHome 2.0
 # Original script by Rob Zimmerman (https://www.github.com/taintedzodiac)
-# See other generous contributors, plus view the source, readme, and license at https://github.com/taintedzodiac/relaymyhome
-# Tested in OS X 10.8 (Mountain Lion) and Mavericks
+# Original script located at https://github.com/taintedzodiac/relaymyhome
+# This fork by Alvin Liang (https://github.com/aliang)
+# See other generous contributors, plus view the source, readme, and license at https://github.com/aliang/relaymyhome
+# Tested in OS X 10.9 (Mavericks)
 
 ### The time we will pause on each MAC address
 relay_time="90"
@@ -227,12 +229,8 @@ then
       echo "Quick Mode enabled. Randomly seeding ${num} addresses from full list."
     fi
 
-    # TODO: Back up existing Internet Sharing plist
+    # TODO: Back up existing Internet Sharing plist (this would allow us to set the SSID)
     # TODO: Copy settings in place of existing Internet Sharing plist
-
-    # Just for kicks, change it to just the address I want
-    # testAddress="00:25:00:f5:8a:ef"
-    # set_mac_address $testAddress
 
     for ((a=1; a<=$num; a++));
     do
