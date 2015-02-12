@@ -29,9 +29,13 @@
 # See other generous contributors, plus view the source, readme, and license at https://github.com/aliang/relaymyhome
 # Tested in OS X 10.9 (Mavericks)
 
-### The time we will pause on each MAC address
-relay_time="1"
-sleep_time="1"
+# How long we will pause on each MAC address (seconds)
+relay_time=90
+# How long to wait between Wi-Fi configuration steps (seconds)
+sleep_time=1
+# Number of tries to set the MAC address before giving up
+# (1 second between tries)
+wait_tries=30
 
 wservice=`/usr/sbin/networksetup -listallnetworkservices | grep -Ei '(wi-fi|airport)'`
 wifi=$(networksetup -listallhardwareports | awk "/$wservice/,/Ethernet/"' getline { print $2 }')
@@ -142,7 +146,6 @@ function set_and_wait_for_mac_address_change {
     echo "Setting and waiting for MAC address to change"
     local targetMAC=$1
     local wait_count=1
-    wait_tries=30
     while [ $targetMAC != $currentMAC ] && [ $wait_count -le $wait_tries ]; do
         printf "\rAttempt $wait_count of $wait_tries ($currentMAC -> $targetMAC)"
         sleep 1
