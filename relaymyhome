@@ -30,7 +30,7 @@
 # Tested in OS X 10.9 (Mavericks)
 
 ### The time we will pause on each MAC address
-relay_time="90"
+relay_time="1"
 sleep_time="1"
 
 wservice=`/usr/sbin/networksetup -listallnetworkservices | grep -Ei '(wi-fi|airport)'`
@@ -65,8 +65,12 @@ function pause_with_progress_dots {
 
 function disassociate_from_wifi_network {
     printf "Disassociating from Wi-Fi network"
-    sudo /System/Library/PrivateFrameworks/Apple80211.framework/Versions/Current/Resources/airport -z
+    disassociate_from_wifi_network_silently
     pause_with_progress_dots $sleep_time
+}
+
+function disassociate_from_wifi_network_silently {
+    sudo /System/Library/PrivateFrameworks/Apple80211.framework/Versions/Current/Resources/airport -z
 }
 
 function turn_off_wifi {
@@ -107,6 +111,11 @@ function turn_on_internet_sharing {
     sudo /usr/libexec/InternetSharing &
 }
 
+function set_mac_address {
+    local targetMAC=$1
+    sudo ifconfig $wifi ether $targetMAC
+}
+
 # Stores the current mac address to $currentMAC as uppercase.
 function store_current_mac_address {
     currentMAC=$(ifconfig ${wifi} ether | grep ether | awk '{print $2}' | tr '[:lower:]' '[:upper:]')
@@ -116,8 +125,8 @@ function store_current_mac_address {
 # Assumes the wifi is on
 function set_and_store_current_mac_address {
     local targetMAC=$1
-    disassociate_from_wifi_network
-    sudo ifconfig $wifi ether $targetMAC
+    disassociate_from_wifi_network_silently
+    set_mac_address $targetMAC
     store_current_mac_address
 }
 
@@ -147,7 +156,7 @@ function set_and_wait_for_mac_address_change {
     echo "MAC address is now $currentMAC"
 }
 
-function set_mac_address {
+function spoof_mac_address {
     local targetMAC=$1
     # echo "Setting address to $targetMAC"
 
@@ -161,11 +170,12 @@ function set_mac_address {
     turn_on_internet_sharing
 }
 
+function reset_mac_address {
+    spoof_mac_address $WirelessMAC
+}
+
 function cleanup {
-    # sudo ifconfig ${wifi} lladdr ${WirelessMAC}
-    # networksetup -setairportpower ${wifi} off
-    # networksetup -setairportpower ${wifi} on
-    set_mac_address ${WirelessMAC}
+    reset_mac_address
     turn_off_internet_sharing
 
     echo "Cycling of Relays has completed, MAC address reverted."
@@ -176,7 +186,7 @@ function cleanup {
 function ctrl_c {
     # user quit midway through, so we should revert
     # the MAC address by calling our cleanup function
-    echo "*** Interrupted ***"
+    echo "*** Interrupted, cleaning up ***"
     cleanup
     exit $?
 }
@@ -238,7 +248,7 @@ then
         echo "-----------------------------------------------"
         echo "Spoofing $wifi to $selectedAddr ($a of $num)"
         echo "-----------------------------------------------"
-        set_mac_address $selectedAddr
+        spoof_mac_address $selectedAddr
         # Wait for connections
         echo "Pausing to allow connections for ${relay_time} seconds"
         pause_with_progress_dots $relay_time
@@ -248,6 +258,7 @@ then
 else
     # This set of MACs will be used in standard mode
     # Taken from: https://docs.google.com/spreadsheet/ccc?key=0AvvH5W4E2lIwdEFCUkxrM085ZGp0UkZlenp6SkJablE#gid=0
+    # TODO: Read this from a file
     # Usage: ./relaymyhome
     addr[0]='00:0D:67:15:2D:82'
     addr[1]='00:0D:67:15:D7:21'
@@ -277,12 +288,13 @@ else
     for a in "${addr[@]}"
     do
         echo "-----------------------------------------------"
-        echo "Spoofing $wifi to $selectedAddr ($a of $num)"
+        echo "Spoofing $wifi to $a ($n of ${#addr[@]})"
         echo "-----------------------------------------------"
-        set_mac_address $selectedAddr
+        spoof_mac_address $a
         # Wait for connections
         echo "Pausing to allow connections for ${relay_time} seconds"
         pause_with_progress_dots $relay_time
+        n=$((n+1))
     done
 fi
 
