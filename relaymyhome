@@ -29,12 +29,15 @@
 
 ### The time we will pause on each MAC address
 relay_time="90"
-sleep_time="10"
+sleep_time="1"
 
 wservice=`/usr/sbin/networksetup -listallnetworkservices | grep -Ei '(wi-fi|airport)'`
 wifi=$(networksetup -listallhardwareports | awk "/$wservice/,/Ethernet/"' getline { print $2 }')
+# Uppercase
+WirelessMAC=$(networksetup -getmacaddress "${wifi}" | awk '{print $3}' | tr '[:lower:]' '[:upper:]')
+currentMAC=$WirelessMAC
 
-WirelessMAC=$(networksetup -getmacaddress "${wifi}" | awk '{print $3}')
+echo "Wi-Fi adapter is: $wifi"
 echo "Original MAC address is: $WirelessMAC"
 
 function notify {
@@ -46,10 +49,122 @@ function notify {
     return 0
 }
 
+# Pauses for X seconds
+function pause_with_progress_dots {
+    local pause_time=$1
+    local pause_count=1
+    while [ $pause_count -le $pause_time ]; do
+        printf "."
+        sleep 1
+        pause_count=$((pause_count+1))
+    done
+    printf "\n"
+}
+
+function disassociate_from_wifi_network {
+    printf "Disassociating from Wi-Fi network"
+    sudo /System/Library/PrivateFrameworks/Apple80211.framework/Versions/Current/Resources/airport -z
+    pause_with_progress_dots $sleep_time
+}
+
+function turn_off_wifi {
+    printf "Turning off Wi-Fi" # for ${sleep_time} seconds"
+    sudo networksetup -setairportpower $wifi off
+    pause_with_progress_dots $sleep_time
+}
+
+function turn_on_wifi {
+    printf "Turning on Wi-Fi"
+    sudo networksetup -setairportpower $wifi on
+    pause_with_progress_dots $sleep_time
+}
+
+# Cycle Wi-Fi
+function cycle_wifi {
+    turn_off_wifi
+    turn_on_wifi
+    echo "WiFi cycle completed"
+}
+
+function unload_internet_sharing {
+    if $(sudo launchctl list | grep -q com.apple.InternetSharing.plist); then
+        printf "Unloading Internet Sharing plist"
+        sudo launchctl unload -w /System/Library/LaunchDaemons/com.apple.InternetSharing.plist
+        pause_with_progress_dots $sleep_time
+    else
+        echo "Internet Sharing plist not loaded"
+    fi
+}
+
+# Turn off Internet Sharing if on
+function turn_off_internet_sharing {
+    sudo killall InternetSharing
+}
+
+function turn_on_internet_sharing {
+    sudo /usr/libexec/InternetSharing &
+}
+
+# Stores the current mac address to $currentMAC as uppercase.
+function store_current_mac_address {
+    currentMAC=$(ifconfig ${wifi} ether | grep ether | awk '{print $2}' | tr '[:lower:]' '[:upper:]')
+}
+
+# Sets the mac address. Stores the resulting mac address to $currentMAC.
+# Assumes the wifi is on
+function set_and_store_current_mac_address {
+    local targetMAC=$1
+    disassociate_from_wifi_network
+    sudo ifconfig $wifi ether $targetMAC
+    store_current_mac_address
+}
+
+function dump_ifconfig {
+    echo "Here is the output of ifconfig $wifi:"
+    echo `ifconfig $wifi`
+    echo "--------"
+}
+
+# Sets the mac address repeatedly until it sticks
+# Stores the resulting mac address to $currentMAC
+function set_and_wait_for_mac_address_change {
+    echo "Setting and waiting for MAC address to change"
+    local targetMAC=$1
+    local wait_count=1
+    wait_tries=30
+    while [ $targetMAC != $currentMAC ] && [ $wait_count -le $wait_tries ]; do
+        printf "\rAttempt $wait_count of $wait_tries ($currentMAC -> $targetMAC)"
+        sleep 1
+        set_and_store_current_mac_address $targetMAC
+        wait_count=$((wait_count+1))
+    done
+    printf "\n"
+    if [ $targetMAC != $currentMAC ]; then
+        echo "MAC addresses didn't match"
+    fi
+    echo "MAC address is now $currentMAC"
+}
+
+function set_mac_address {
+    local targetMAC=$1
+    # echo "Setting address to $targetMAC"
+
+    # Turn on wifi
+    turn_on_wifi
+    disassociate_from_wifi_network
+    unload_internet_sharing
+    turn_off_internet_sharing
+    set_and_wait_for_mac_address_change $targetMAC
+    cycle_wifi
+    turn_on_internet_sharing
+}
+
 function cleanup {
-    sudo ifconfig ${wifi} lladdr ${WirelessMAC}
-    networksetup -setairportpower ${wifi} off
-    networksetup -setairportpower ${wifi} on
+    # sudo ifconfig ${wifi} lladdr ${WirelessMAC}
+    # networksetup -setairportpower ${wifi} off
+    # networksetup -setairportpower ${wifi} on
+    set_mac_address ${WirelessMAC}
+    turn_off_internet_sharing
 
     echo "Cycling of Relays has completed, MAC address reverted."
     notify "Time to check your street passes!"
@@ -112,16 +227,23 @@ then
       echo "Quick Mode enabled. Randomly seeding ${num} addresses from full list."
     fi
 
+    # TODO: Back up existing Internet Sharing plist
+    # TODO: Copy settings in place of existing Internet Sharing plist
+
+    # Just for kicks, change it to just the address I want
+    # testAddress="00:25:00:f5:8a:ef"
+    # set_mac_address $testAddress
+
     for ((a=1; a<=$num; a++));
     do
         selectedAddr=${Addr[$RANDOM % ${#Addr[@]} ]}
-        echo "Cycling WiFi..."
-        sudo ifconfig $wifi lladdr $selectedAddr
-        networksetup -setairportpower $wifi off
-        sleep ${sleep_time}
-        networksetup -setairportpower $wifi on
-        echo "Spoofing $wifi to $selectedAddr for ${relay_time} seconds ($a of $num)"
-        sleep ${relay_time}
+        echo "-----------------------------------------------"
+        echo "Spoofing $wifi to $selectedAddr ($a of $num)"
+        echo "-----------------------------------------------"
+        set_mac_address $selectedAddr
+        # Wait for connections
+        echo "Pausing to allow connections for ${relay_time} seconds"
+        pause_with_progress_dots $relay_time
     done
 
 
@@ -156,14 +278,13 @@ else
 
     for a in "${addr[@]}"
     do
-        echo "Cycling WiFi..."
-        sudo ifconfig $wifi lladdr $a
-        networksetup -setairportpower $wifi off
-        sleep ${sleep_time}
-        networksetup -setairportpower $wifi on
-        echo "Spoofing $wifi to $a for 90 seconds ($n of 21)"
-        n=$((n+1))
-        sleep ${relay_time}
+        echo "-----------------------------------------------"
+        echo "Spoofing $wifi to $selectedAddr ($a of $num)"
+        echo "-----------------------------------------------"
+        set_mac_address $selectedAddr
+        # Wait for connections
+        echo "Pausing to allow connections for ${relay_time} seconds"
+        pause_with_progress_dots $relay_time
     done
 fi
 
