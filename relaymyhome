@@ -38,9 +38,12 @@ sleep_time=1
 wait_tries=30
 
 wservice=`/usr/sbin/networksetup -listallnetworkservices | grep -Ei '(wi-fi|airport)'`
+# Wi-Fi interface name, used in all sorts of commands
 wifi=$(networksetup -listallhardwareports | awk "/$wservice/,/Ethernet/"' getline { print $2 }')
-# Uppercase
+# Original hardware MAC address, uppercase
 WirelessMAC=$(networksetup -getmacaddress "${wifi}" | awk '{print $3}' | tr '[:lower:]' '[:upper:]')
+# Variable to store the current spoofed MAC address.
+# Used to poll for whether the MAC was set successfully
 currentMAC=$WirelessMAC
 
 echo "Wi-Fi adapter is: $wifi"
@@ -57,8 +60,10 @@ function notify {
 
 # Pauses for X seconds
 function pause_with_progress_dots {
-    local pause_time=$1
-    local pause_count=1
+    local pause_time
+    pause_time=$1
+    local pause_count
+    pause_count=1
     while [ $pause_count -le $pause_time ]; do
         printf "."
         sleep 1
@@ -116,7 +121,8 @@ function turn_on_internet_sharing {
 }
 
 function set_mac_address {
-    local targetMAC=$1
+    local targetMAC
+    targetMAC=$1
     sudo ifconfig $wifi ether $targetMAC
 }
 
@@ -128,7 +134,8 @@ function store_current_mac_address {
 # Sets the mac address. Stores the resulting mac address to $currentMAC.
 # Assumes the wifi is on
 function set_and_store_current_mac_address {
-    local targetMAC=$1
+    local targetMAC
+    targetMAC=$1
     disassociate_from_wifi_network_silently
     set_mac_address $targetMAC
     store_current_mac_address
@@ -144,8 +151,10 @@ function dump_ifconfig {
 # Stores the resulting mac address to $currentMAC
 function set_and_wait_for_mac_address_change {
     echo "Setting and waiting for MAC address to change"
-    local targetMAC=$1
-    local wait_count=1
+    local targetMAC
+    targetMAC=$1
+    local wait_count
+    wait_count=1
     while [ $targetMAC != $currentMAC ] && [ $wait_count -le $wait_tries ]; do
         printf "\rAttempt $wait_count of $wait_tries ($currentMAC -> $targetMAC)"
         sleep 1
@@ -160,7 +169,8 @@ function set_and_wait_for_mac_address_change {
 }
 
 function spoof_mac_address {
-    local targetMAC=$1
+    local targetMAC
+    targetMAC=$1
     # echo "Setting address to $targetMAC"
 
     # Turn on wifi
