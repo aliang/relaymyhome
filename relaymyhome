@@ -27,7 +27,7 @@
 # Original script located at https://github.com/taintedzodiac/relaymyhome
 # This fork by Alvin Liang (https://github.com/aliang)
 # See other generous contributors, plus view the source, readme, and license at https://github.com/aliang/relaymyhome
-# Tested in OS X 10.9 (Mavericks)
+# Tested in OS X 10.9.5 (Mavericks)
 
 # How long we will pause on each MAC address (seconds)
 relay_time=90
