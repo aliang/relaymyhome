@@ -224,6 +224,7 @@ shift $((OPTIND - 1))
 
 echo "Wi-Fi adapter is: $wifi"
 echo "Original MAC address is: $WirelessMAC"
+echo "count is ${count}"
 
 ### TODO:
 ### * change this to a case statement
@@ -231,7 +232,7 @@ echo "Original MAC address is: $WirelessMAC"
 ### * Parse other cli options for verbosity and say vs silent
 ### * Put the list of MACs into a sqlite3 db and query only oldest visited ones?
 
-if  [[ $1 == "full" || $1 == "fuller" || $1 == "quick" ]]
+if  [[ $1 == "full" || $1 == "quick" ]]
 then
     # Generate a full list of 160 MACs when "full" mode is specified
     # To use full mode: ./relaymyhome full
@@ -245,11 +246,15 @@ then
 
     if [[ $1 == "full" ]]
     then
-      num=5
-      echo "Full Mode enabled. Randomly seeding five addresses from full list."
+        if [ -z ${count} ]; then
+            num=5
+        else
+            num=${count}
+        fi
+        echo "Full Mode enabled. Randomly seeding ${num} addresses from full list."
     else
-      num=2
-      echo "Quick Mode enabled. Randomly seeding ${num} addresses from full list."
+        num=2
+        echo "Quick Mode enabled. Randomly seeding ${num} addresses from full list."
     fi
 
     # TODO: Back up existing Internet Sharing plist (this would allow us to set the SSID)
