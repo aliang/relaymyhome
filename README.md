@@ -46,9 +46,14 @@ For those of you more comfortable on the command line, running `./relaymyhome -h
 
 What's New
 ==========
-**v 2.0**
+**2.1.0**
 
-* I forked the original code, because it was unreliable on my Early 2009 Mac Mini running 10.9 (Mavericks)
+* Semantic versioning from now on.
+* Check for sudo, since changing wifi settings requires it, and terminate appropriately
+
+**2.0**
+
+* I (Alvin) forked the original code, because it was unreliable on my Early 2009 Mac Mini running 10.9 (Mavericks)
 * Big refactor, everything's a function
 * Wait a lot less time, except for when the MAC address changes.
 * Poll amd wait for MAC address to actually change, not just 10 seconds or whatever. This was the main cause of me never getting any StreetPasses; my hardware would receive the command to change MAC address, but it would take more than 10 seconds for the MAC address change to take effect.
@@ -57,13 +62,13 @@ What's New
 * Implementing the -c parameter to specify number of addresses. The option was parsed before in taintedzodiac's script, just not used
 * More logging that's easier to read (I should really implement verbosity, though)
 
-**v 1.1**
+**1.1**
 
 * OSX Yosemite support
 * Added the Homepass relay MAC addresses.
 * Updated instructions to use NZ@McD1 network name.
 
-**v 1.0**
+**1.0**
 
 Script has been updated for the new "six at a time" feature of StreetPass Relay. The following features have been added/change:
 
