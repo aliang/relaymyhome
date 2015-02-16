@@ -149,6 +149,7 @@ function set_and_wait_for_mac_address_change {
     echo "MAC address is now $currentMAC"
 }
 
+# Run everything we need to spoof the mac address.
 function spoof_mac_address {
     local targetMAC
     targetMAC=$1
@@ -161,7 +162,12 @@ function spoof_mac_address {
     turn_off_internet_sharing
     set_and_wait_for_mac_address_change $targetMAC
     cycle_wifi
+}
+
+function wait_for_streetpasses {
     turn_on_internet_sharing
+    echo "Pausing to allow connections for ${relay_time} seconds"
+    pause_with_progress_dots $relay_time
 }
 
 function spoof_full_list_of_mac_addresses {
@@ -192,9 +198,7 @@ function spoof_full_list_of_mac_addresses {
         echo "Spoofing $wifi to $selectedAddr ($a of $num)"
         echo "-----------------------------------------------"
         spoof_mac_address $selectedAddr
-        # Wait for connections
-        echo "Pausing to allow connections for ${relay_time} seconds"
-        pause_with_progress_dots $relay_time
+        wait_for_streetpasses
     done
 }
 
@@ -238,9 +242,7 @@ function spoof_nintendo_mac_addresses {
         echo "Spoofing $wifi to $a ($n of ${#addr[@]})"
         echo "-----------------------------------------------"
         spoof_mac_address $a
-        # Wait for connections
-        echo "Pausing to allow connections for ${relay_time} seconds"
-        pause_with_progress_dots $relay_time
+        wait_for_streetpasses
         n=$((n+1))
     done
 }
@@ -250,7 +252,7 @@ function cleanup {
     turn_off_internet_sharing
 
     echo "Cycling of Relays has completed, MAC address reverted."
-    notify "Time to check your street passes!"
+    notify "Time to check your StreetPasses!"
     return 0
 }
 
@@ -332,7 +334,7 @@ elif [[ -n $1 ]]; then
     echo "Spoofing $wifi to $1"
     echo "-----------------------------------------------"
     spoof_mac_address $1
-    pause_with_progress_dots $relay_time
+    wait_for_streetpasses
 else
     spoof_nintendo_mac_addresses
 fi
