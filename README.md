@@ -34,8 +34,8 @@ Installation (Mac OS X 10.9 & 10.10)
 Basic Usage
 ===========
 1. Type one of the following:
-  * `./relaymyhome`: Connects to the Nintendo World and HomePass addresses. There are 21 of them, and you can get special Miis available only via Nintendo World addresses.
-  * `./relaymyhome full`: Connects to a subset of the addresses [listed here](https://docs.google.com/spreadsheet/lv?key=0AvvH5W4E2lIwdEFCUkxrM085ZGp0UkZlenp6SkJablE&f=true&noheader=true&gid=0). By default, connects to 5 addresses, which will take about 7-9 minutes.
+  * `./relaymyhome`: Connects to the Nintendo World and [HomePass addresses](https://docs.google.com/spreadsheet/lv?key=0AvvH5W4E2lIwdEFCUkxrM085ZGp0UkZlenp6SkJablE&f=true&noheader=true&gid=0). There are 21 of them, and you can get special Miis available only via Nintendo World addresses.
+  * `./relaymyhome full`: Connects to a subset of the addresses starting with 4E [listed here](https://docs.google.com/spreadsheet/lv?key=0AvvH5W4E2lIwdEFCUkxrM085ZGp0UkZlenp6SkJablE&f=true&noheader=true&gid=5). By default, connects to 5 addresses, which will take about 7-9 minutes.
 2. Press Enter to execute the command and you should see the script do its thing. If you get an error that stops the script, something went wrong. With 5 addresses, the script takes about 8 minutes to run, after which you should have a list full of StreetPass hits on your 3DS.
 3. Once you have greeted your new visitors in the StreetPass Plaza, you can run the script again to get another batch of StreetPasses. You should be able to run the script many times before you will need to wait for the eight hour cooldown on hitting the same relay twice.
 
