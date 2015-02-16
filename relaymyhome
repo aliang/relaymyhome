@@ -46,9 +46,6 @@ WirelessMAC=$(networksetup -getmacaddress "${wifi}" | awk '{print $3}' | tr '[:l
 # Used to poll for whether the MAC was set successfully
 currentMAC=$WirelessMAC
 
-echo "Wi-Fi adapter is: $wifi"
-echo "Original MAC address is: $WirelessMAC"
-
 function notify {
     if [ -z ${speak} ] ; then
         echo "${@}" ;
@@ -224,6 +221,9 @@ do
 done
 
 shift $((OPTIND - 1))
+
+echo "Wi-Fi adapter is: $wifi"
+echo "Original MAC address is: $WirelessMAC"
 
 ### TODO:
 ### * change this to a case statement
