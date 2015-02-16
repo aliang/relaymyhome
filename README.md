@@ -10,7 +10,7 @@ What You'll Need
 ================
 * A Nintendo 3DS that has **updated firmware (as of August 2013)** with WiFi turned on, all apps/games closed, and in sleep mode (lid closed).
 * An Apple computer running OS X (only tested on 10.8 and up, although earlier versions may work as well) with both wired and wireless network interfaces (MacBook Airs will need a USB or Thunderbolt to Ethernet adapter for the wired connection). Your wired connection must be connected to a wired network and able to access the Internet over that connection.
-* An account with administrator rights on the computer.
+* An account with administrator rights on the computer, because this script requires root access to your computer to change wifi settings.
 
 Installation (Mac OS X 10.8)
 ====================================
@@ -34,8 +34,8 @@ Installation (Mac OS X 10.9 & 10.10)
 Basic Usage
 ===========
 1. Type one of the following:
-  * `./relaymyhome`: Connects to the [Nintendo World](https://docs.google.com/spreadsheet/lv?key=0AvvH5W4E2lIwdEFCUkxrM085ZGp0UkZlenp6SkJablE&f=true&noheader=true&gid=3) and [HomePass addresses](https://docs.google.com/spreadsheet/lv?key=0AvvH5W4E2lIwdEFCUkxrM085ZGp0UkZlenp6SkJablE&f=true&noheader=true&gid=0). There are 21 of them, and you can get special Miis available only via Nintendo World addresses if you set your SSID appropriately.
-  * `./relaymyhome full`: Connects to a subset of the addresses starting with 4E [listed here](https://docs.google.com/spreadsheet/lv?key=0AvvH5W4E2lIwdEFCUkxrM085ZGp0UkZlenp6SkJablE&f=true&noheader=true&gid=5). By default, connects to 5 addresses, which will take about 7-9 minutes.
+  * `sudo ./relaymyhome`: Connects to the [Nintendo World](https://docs.google.com/spreadsheet/lv?key=0AvvH5W4E2lIwdEFCUkxrM085ZGp0UkZlenp6SkJablE&f=true&noheader=true&gid=3) and [HomePass addresses](https://docs.google.com/spreadsheet/lv?key=0AvvH5W4E2lIwdEFCUkxrM085ZGp0UkZlenp6SkJablE&f=true&noheader=true&gid=0). There are 21 of them, and you can get special Miis available only via Nintendo World addresses if you set your SSID appropriately.
+  * `sudo ./relaymyhome full`: Connects to a subset of the addresses starting with 4E [listed here](https://docs.google.com/spreadsheet/lv?key=0AvvH5W4E2lIwdEFCUkxrM085ZGp0UkZlenp6SkJablE&f=true&noheader=true&gid=5). By default, connects to 5 addresses, which will take about 7-9 minutes.
 2. Press Enter to execute the command and you should see the script do its thing. If you get an error that stops the script, something went wrong. With 5 addresses, the script takes about 8 minutes to run, after which you should have a list full of StreetPass hits on your 3DS.
 3. Once you have greeted your new visitors in the StreetPass Plaza, you can run the script again to get another batch of StreetPasses. You should be able to run the script many times before you will need to wait for the eight hour cooldown on hitting the same relay twice.
 
