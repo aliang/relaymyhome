@@ -26,7 +26,8 @@
 # Original script by Rob Zimmerman (https://www.github.com/taintedzodiac)
 # Original script located at https://github.com/taintedzodiac/relaymyhome
 # This fork by Alvin Liang (https://github.com/aliang)
-# See other generous contributors, plus view the source, readme, and license at https://github.com/aliang/relaymyhome
+# See other generous contributors, plus view the source, readme, and license
+# at https://github.com/aliang/relaymyhome
 # Tested in OS X 10.9.5 (Mavericks)
 
 function notify {
