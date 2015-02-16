@@ -282,7 +282,7 @@ function usage {
     echo "$0 [-c count] [-s] [address]"
     echo "c: the number of MAC addresses to cycle through (only in full mode)"
     echo "s: audibly speak when the script is done"
-    echo "address: 'full', 'nintendo', or a mac address in the format XX:XX:XX:XX:XX:XX"
+    echo "address: 'full', 'nintendo', 'cleanup', or 'XX:XX:XX:XX:XX:XX'"
 }
 
 # trap keyboard interrupt (control-c) or unexpected quit
