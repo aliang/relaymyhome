@@ -22,7 +22,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-# RelayMyHome 2.0
+# RelayMyHome 2.1.0
 # Original script by Rob Zimmerman (https://www.github.com/taintedzodiac)
 # Original script located at https://github.com/taintedzodiac/relaymyhome
 # This fork by Alvin Liang (https://github.com/aliang)
@@ -76,18 +76,18 @@ function disassociate_from_wifi_network {
 }
 
 function disassociate_from_wifi_network_silently {
-    sudo /System/Library/PrivateFrameworks/Apple80211.framework/Versions/Current/Resources/airport -z
+    /System/Library/PrivateFrameworks/Apple80211.framework/Versions/Current/Resources/airport -z
 }
 
 function turn_off_wifi {
     printf "Turning off Wi-Fi" # for ${sleep_time} seconds"
-    sudo networksetup -setairportpower $wifi off
+    networksetup -setairportpower $wifi off
     pause_with_progress_dots $sleep_time
 }
 
 function turn_on_wifi {
     printf "Turning on Wi-Fi"
-    sudo networksetup -setairportpower $wifi on
+    networksetup -setairportpower $wifi on
     pause_with_progress_dots $sleep_time
 }
 
@@ -99,9 +99,9 @@ function cycle_wifi {
 }
 
 function unload_internet_sharing {
-    if $(sudo launchctl list | grep -q com.apple.InternetSharing.plist); then
+    if $(launchctl list | grep -q com.apple.InternetSharing.plist); then
         printf "Unloading Internet Sharing plist"
-        sudo launchctl unload -w /System/Library/LaunchDaemons/com.apple.InternetSharing.plist
+        launchctl unload -w /System/Library/LaunchDaemons/com.apple.InternetSharing.plist
         pause_with_progress_dots $sleep_time
     else
         echo "Internet Sharing plist not loaded"
@@ -110,17 +110,17 @@ function unload_internet_sharing {
 
 # Turn off Internet Sharing if on
 function turn_off_internet_sharing {
-    sudo killall InternetSharing
+    killall InternetSharing
 }
 
 function turn_on_internet_sharing {
-    sudo /usr/libexec/InternetSharing &
+    /usr/libexec/InternetSharing &
 }
 
 function set_mac_address {
     local targetMAC
     targetMAC=$1
-    sudo ifconfig $wifi ether $targetMAC
+    ifconfig $wifi ether $targetMAC
 }
 
 # Stores the current mac address to $currentMAC as uppercase.
@@ -279,10 +279,11 @@ function ctrl_c {
 }
 
 function usage {
-    echo "$0 [-c count] [-s] [address]"
-    echo "c: the number of MAC addresses to cycle through (only in full mode)"
-    echo "s: audibly speak when the script is done"
-    echo "address: 'full', 'nintendo', 'cleanup', or 'XX:XX:XX:XX:XX:XX'"
+    echo "$0 [-c count] [-s] [ADDRESS]"
+    echo "  -c: the number of MAC addresses to cycle through (only in full mode)"
+    echo "  -s: audibly speak when the script is done"
+    echo "  ADDRESS can be 'full', 'nintendo', 'cleanup', or 'XX:XX:XX:XX:XX:XX'"
+    echo "Please note that this script must be run as root."
 }
 
 # trap keyboard interrupt (control-c) or unexpected quit
@@ -297,6 +298,18 @@ do
         *) usage ; exit 1 ;
     esac
 done
+
+if [ $EUID != 0 ]; then
+    # echo "---------------------------------------"
+    echo "You must be root to run this script."
+    echo "Try running 'sudo $0'."
+    # echo "Running again with sudo."
+    # echo "Please enter your password if prompted."
+    # echo "---------------------------------------"
+    # sudo "$0" "$@"
+    # exit $?
+    exit 1;
+fi
 
 shift $((OPTIND - 1))
 
