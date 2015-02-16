@@ -224,7 +224,6 @@ shift $((OPTIND - 1))
 
 echo "Wi-Fi adapter is: $wifi"
 echo "Original MAC address is: $WirelessMAC"
-echo "count is ${count}"
 
 ### TODO:
 ### * change this to a case statement
