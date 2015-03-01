@@ -46,6 +46,13 @@ For those of you more comfortable on the command line, running `./relaymyhome -h
 
 What's New
 ==========
+
+**2.2.0**
+
+* Add -t parameter to set the amount of time to wait for connections
+* Split Nintendo and HomePass relay cycling into two functions.
+* Split waiting for connections into its own function
+
 **2.1.0**
 
 * Semantic versioning from now on.
