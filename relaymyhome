@@ -275,7 +275,7 @@ function usage {
 # trap keyboard interrupt (control-c) or unexpected quit
 trap ctrl_c SIGINT SIGTERM
 
-while getopts hsct: option
+while getopts hsc:t: option
 do
     case "${option}" in
         h) usage ; exit ;;
@@ -285,6 +285,8 @@ do
         *) usage ; exit 1 ;
     esac
 done
+
+shift $((OPTIND -1))
 
 if [ $EUID != 0 ]; then
     # echo "---------------------------------------"
