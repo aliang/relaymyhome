@@ -307,6 +307,8 @@ done
 
 shift $((OPTIND -1))
 
+echo "To view advanced usage, type '$0 -h'"
+
 if [ $EUID != 0 ]; then
     # echo "---------------------------------------"
     echo "You must be root to run this script."
