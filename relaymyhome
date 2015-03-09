@@ -34,11 +34,17 @@
 # echo $BASH_SOURCE
 # echo `dirname $BASH_SOURCE`
 
+function log () {
+    if [[ $VERBOSITY -eq 1 ]]; then
+        echo "$@"
+    fi
+}
+
 function notify {
     if [ -z ${speak} ] ; then
         echo "${@}" ;
     else
-        say --interactive=green "${@}" ;
+        say "${@}" ;
     fi
     return 0
 }
@@ -256,8 +262,8 @@ function set_addresses_to_sequence_of_16 {
 }
 
 function spoof_addresses_for_shirt_color {
-    set_addresses_for_shirt_color $1
     echo "Connecting to the $1 shirt Mii relays."
+    set_addresses_for_shirt_color $1
     spoof_addresses
 }
 
@@ -293,8 +299,8 @@ function set_addresses_for_shirt_color {
 }
 
 function spoof_addresses_for_gender {
-    set_addresses_for_gender $1
     echo "Connecting to the $1 gender Mii relays."
+    set_addresses_for_gender $1
     spoof_addresses
 }
 
@@ -353,10 +359,13 @@ function usage {
 # trap keyboard interrupt (control-c) or unexpected quit
 trap ctrl_c SIGINT SIGTERM
 
-while getopts hsc:t: option
+VERBOSITY=0
+
+while getopts hvsc:t: option
 do
     case "${option}" in
         h) usage ; exit ;;
+        v) VERBOSITY=1 ;;
         s) speak=1 ;;
         c) count=${OPTARG} ;;
         t) relay_time=${OPTARG} ;;
@@ -364,7 +373,7 @@ do
     esac
 done
 
-shift $((OPTIND -1))
+shift $(( OPTIND - 1 ))
 
 echo "To view advanced usage, type '$0 -h'"
 
@@ -397,10 +406,8 @@ WirelessMAC=$(networksetup -getmacaddress "${wifi}" | awk '{print $3}' | tr '[:l
 # Used to poll for whether the MAC was set successfully
 currentMAC=$WirelessMAC
 
-shift $((OPTIND - 1))
-
-echo "Wi-Fi adapter is: $wifi"
-echo "Original MAC address is: $WirelessMAC"
+log "Wi-Fi adapter is: $wifi"
+log "Original MAC address is: $WirelessMAC"
 
 ### TODO:
 ### * Parse other cli options for verbosity and say vs silent
