@@ -49,6 +49,12 @@ function logf () {
     fi
 }
 
+function header () {
+    echo "-----------------------------------------------"
+    echo "$@"
+    echo "-----------------------------------------------"
+}
+
 function notify {
     if [ -z ${speak} ] ; then
         echo "${@}" ;
@@ -341,9 +347,9 @@ function spoof_addresses {
     local n
     n=1
     for a in "${ADDRESSES[@]}"; do
-        echo "-----------------------------------------------"
+        log "-----------------------------------------------"
         echo "Spoofing $wifi to $a ($n of ${#ADDRESSES[@]})"
-        echo "-----------------------------------------------"
+        log "-----------------------------------------------"
         spoof_mac_address $a
         wait_for_streetpasses
         n=$((n+1))
