@@ -436,11 +436,8 @@ elif [[ $1 == "gender" ]]; then
 elif [[ $1 == "cleanup" ]]; then
     echo "Not doing anything, only cleaning up"
 elif [[ -n $1 ]]; then
-    echo "-----------------------------------------------"
-    echo "Spoofing $wifi to $1"
-    echo "-----------------------------------------------"
-    spoof_mac_address $1
-    wait_for_streetpasses
+    ADDRESSES=("$@")
+    spoof_addresses
 else
     spoof_nintendo_mac_addresses
     spoof_homepass_mac_addresses
