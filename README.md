@@ -42,10 +42,18 @@ Basic Usage
 Advanced Usage
 ==============
 
-For those of you more comfortable on the command line, running `./relaymyhome -h` will display some usage help. You can specify the number of addresses to use in "full" mode, or specify a single MAC address to spoof.
+For those of you more comfortable on the command line, running `./relaymyhome -h` will display some usage help. You can specify the number of addresses to use in "full" mode, or specify MAC addresses to spoof.
 
 What's New
 ==========
+
+**3.0.0**
+
+* Accept shirt and gender parameters to cycle over the appropriate addresses
+* Allow passing more than one arbitrary MAC address as arguments for spoofing
+* Add verbose option, it only silences two log lines right now
+* Repeat way less code when cycling through addresses
+* Fix double option shifting bug
 
 **2.2.0**
 
@@ -87,8 +95,9 @@ Script has been updated for the new "six at a time" feature of StreetPass Relay.
 
 TODO
 ====
-* Set the SSID programatically
-* Start Internet Sharing automatically
+* Better cleanup after the script is done by trapping EXIT signal as well
+* Set the SSID programatically via /etc/bootpd.plist or /Library/Preferences/SystemConfiguration/com.apple.nat.plist, or whatever plist it is
+* More robust InternetSharing startup
 * Revert back to whatever state your wifi was in before running the script (i.e. off, on and connected to whatever SSID it was before, etc.)
 
 Credits
