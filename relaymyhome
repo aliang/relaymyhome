@@ -30,6 +30,10 @@
 # at https://github.com/aliang/relaymyhome
 # Tested in OS X 10.9.5 (Mavericks)
 
+# Might need this for config files
+# echo $BASH_SOURCE
+# echo `dirname $BASH_SOURCE`
+
 function notify {
     if [ -z ${speak} ] ; then
         echo "${@}" ;
@@ -207,61 +211,116 @@ function reset_mac_address {
 }
 
 function spoof_nintendo_mac_addresses {
-    # This set of MACs will be used in standard mode
     # Taken from: https://docs.google.com/spreadsheet/ccc?key=0AvvH5W4E2lIwdEFCUkxrM085ZGp0UkZlenp6SkJablE#gid=0
     # TODO: Read this from a file
-    # Usage: ./relaymyhome
-    addr[0]='00:0D:67:15:2D:82'
-    addr[1]='00:0D:67:15:D7:21'
-    addr[2]='00:0D:67:15:D5:44'
-    addr[3]='00:0D:67:15:D2:59'
-    addr[4]='00:0D:67:15:D6:FD'
+    ADDRESSES=()
+    ADDRESSES[0]='00:0D:67:15:2D:82'
+    ADDRESSES[1]='00:0D:67:15:D7:21'
+    ADDRESSES[2]='00:0D:67:15:D5:44'
+    ADDRESSES[3]='00:0D:67:15:D2:59'
+    ADDRESSES[4]='00:0D:67:15:D6:FD'
 
     echo "Connecting to the five Nintendo World relays."
-    n=1
-
-    for a in "${addr[@]}"
-    do
-        echo "-----------------------------------------------"
-        echo "Spoofing $wifi to $a ($n of ${#addr[@]})"
-        echo "-----------------------------------------------"
-        spoof_mac_address $a
-        wait_for_streetpasses
-        n=$((n+1))
-    done
+    spoof_addresses
 }
 
 function spoof_homepass_mac_addresses {
-    addr[0]='4E:53:50:4F:4F:40'
-    addr[1]='4E:53:50:4F:4F:41'
-    addr[2]='4E:53:50:4F:4F:42'
-    addr[3]='4E:53:50:4F:4F:43'
-    addr[4]='4E:53:50:4F:4F:44'
-    addr[5]='4E:53:50:4F:4F:45'
-    addr[6]='4E:53:50:4F:4F:46'
-    addr[7]='4E:53:50:4F:4F:47'
-    addr[8]='4E:53:50:4F:4F:48'
-    addr[9]='4E:53:50:4F:4F:49'
-    addr[10]='4E:53:50:4F:4F:4A'
-    addr[11]='4E:53:50:4F:4F:4B'
-    addr[12]='4E:53:50:4F:4F:4C'
-    addr[13]='4E:53:50:4F:4F:4D'
-    addr[14]='4E:53:50:4F:4F:4E'
-    addr[15]='4E:53:50:4F:4F:4F'
+    ADDRESSES=()
+    ADDRESSES[0]='4E:53:50:4F:4F:40'
+    ADDRESSES[1]='4E:53:50:4F:4F:41'
+    ADDRESSES[2]='4E:53:50:4F:4F:42'
+    ADDRESSES[3]='4E:53:50:4F:4F:43'
+    ADDRESSES[4]='4E:53:50:4F:4F:44'
+    ADDRESSES[5]='4E:53:50:4F:4F:45'
+    ADDRESSES[6]='4E:53:50:4F:4F:46'
+    ADDRESSES[7]='4E:53:50:4F:4F:47'
+    ADDRESSES[8]='4E:53:50:4F:4F:48'
+    ADDRESSES[9]='4E:53:50:4F:4F:49'
+    ADDRESSES[10]='4E:53:50:4F:4F:4A'
+    ADDRESSES[11]='4E:53:50:4F:4F:4B'
+    ADDRESSES[12]='4E:53:50:4F:4F:4C'
+    ADDRESSES[13]='4E:53:50:4F:4F:4D'
+    ADDRESSES[14]='4E:53:50:4F:4F:4E'
+    ADDRESSES[15]='4E:53:50:4F:4F:4F'
 
     echo "Connecting to the sixteen Homepass relays."
-    n=1
+    spoof_addresses
+}
 
-    for a in "${addr[@]}"
-    do
+function set_addresses_to_sequence_of_16 {
+    local base_address
+    base_address=$1
+    # Sort of like this:
+    # # ADDRESSES=($(for X in {0..15} ; do echo ${X} | awk '{printf "%s%01X ", "4E:53:50:4F:4F:0", $1}'; done ;))
+    ADDRESSES=($(for X in {0..15} ; do echo $base_address ${X} | awk '{printf "%s%01X ", $1, $2}'; done ;))
+}
+
+function spoof_addresses_for_shirt_color {
+    set_addresses_for_shirt_color $1
+    echo "Connecting to the $1 shirt Mii relays."
+    spoof_addresses
+}
+
+function set_addresses_for_shirt_color {
+    if [[ $1 == 'red' ]]; then
+        set_addresses_to_sequence_of_16 "4E:53:50:4F:43:0"
+    elif [[ $1 == 'blue' ]]; then
+        set_addresses_to_sequence_of_16 "4E:53:50:4F:43:1"
+    elif [[ $1 == 'yellow' ]]; then
+        set_addresses_to_sequence_of_16 "4E:53:50:4F:43:2"
+    elif [[ $1 == 'light_green' ]]; then
+        set_addresses_to_sequence_of_16 "4E:53:50:4F:43:3"
+    elif [[ $1 == 'green' ]]; then
+        set_addresses_to_sequence_of_16 "4E:53:50:4F:43:4"
+    elif [[ $1 == 'blue' ]]; then
+        set_addresses_to_sequence_of_16 "4E:53:50:4F:43:5"
+    elif [[ $1 == 'light_blue' ]]; then
+        set_addresses_to_sequence_of_16 "4E:53:50:4F:43:6"
+    elif [[ $1 == 'pink' ]]; then
+        set_addresses_to_sequence_of_16 "4E:53:50:4F:43:7"
+    elif [[ $1 == 'purple' ]]; then
+        set_addresses_to_sequence_of_16 "4E:53:50:4F:43:8"
+    elif [[ $1 == 'brown' ]]; then
+        set_addresses_to_sequence_of_16 "4E:53:50:4F:43:9"
+    elif [[ $1 == 'white' ]]; then
+        set_addresses_to_sequence_of_16 "4E:53:50:4F:43:A"
+    elif [[ $1 == 'black' ]]; then
+        set_addresses_to_sequence_of_16 "4E:53:50:4F:43:B"
+    else
+        echo "Didn't recognize the shirt color $1"
+        ADDRESSES=()
+    fi
+}
+
+function spoof_addresses_for_gender {
+    set_addresses_for_gender $1
+    echo "Connecting to the $1 gender Mii relays."
+    spoof_addresses
+}
+
+function set_addresses_for_gender {
+    if [[ $1 == 'male' ]]; then
+        set_addresses_to_sequence_of_16 "4E:53:50:4F:42:0"
+    elif [[ $1 == 'female' ]]; then
+        set_addresses_to_sequence_of_16 "4E:53:50:4F:42:1"
+    else
+        echo "Didn't recognize the gender $1"
+        ADDRESSES=()
+    fi
+}
+
+# Spoof whatever is in the array ADDRESSES
+function spoof_addresses {
+    local n
+    n=1
+    for a in "${ADDRESSES[@]}"; do
         echo "-----------------------------------------------"
-        echo "Spoofing $wifi to $a ($n of ${#addr[@]})"
+        echo "Spoofing $wifi to $a ($n of ${#ADDRESSES[@]})"
         echo "-----------------------------------------------"
         spoof_mac_address $a
         wait_for_streetpasses
         n=$((n+1))
     done
-
 }
 
 function cleanup {
@@ -353,6 +412,20 @@ elif [[ $1 == "nintendo" ]]; then
     spoof_nintendo_mac_addresses
 elif [[ $1 == "homepass" ]]; then
     spoof_homepass_mac_addresses
+elif [[ $1 == "shirt" ]]; then
+    if [[ -n $2 ]]; then
+        spoof_addresses_for_shirt_color $2
+    else
+        echo "No shirt color specified"
+        exit 1
+    fi
+elif [[ $1 == "gender" ]]; then
+    if [[ -n $2 ]]; then
+        spoof_addresses_for_gender $2
+    else
+        echo "No gender specified"
+        exit 1
+    fi
 elif [[ $1 == "cleanup" ]]; then
     echo "Not doing anything, only cleaning up"
 elif [[ -n $1 ]]; then
