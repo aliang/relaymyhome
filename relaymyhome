@@ -182,7 +182,7 @@ function set_and_wait_for_mac_address_change {
         set_and_store_current_mac_address $targetMAC
         wait_count=$((wait_count+1))
     done
-    printf "\n"
+    logf "\n"
     if [ $targetMAC != $currentMAC ]; then
         echo "Warning: MAC address not changed successfully"
     fi
