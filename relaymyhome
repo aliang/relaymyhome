@@ -33,10 +33,6 @@
 
 # Tested in OS X 10.9.5 (Mavericks)
 
-# Might need this for config files
-# echo $BASH_SOURCE
-# echo `dirname $BASH_SOURCE`
-
 function log () {
     if [[ $VERBOSITY -eq 1 ]]; then
         echo "$@"
@@ -46,6 +42,12 @@ function log () {
 function logf () {
     if [[ $VERBOSITY -eq 1 ]]; then
         printf "$@"
+    fi
+}
+
+function log_header () {
+    if [[ $VERBOSITY -eq 1 ]]; then
+        header "$@"
     fi
 }
 
@@ -386,8 +388,10 @@ function usage {
     echo "Please note that this script must be run as root."
 }
 
-# trap keyboard interrupt (control-c) or unexpected quit
-trap ctrl_c SIGINT SIGTERM
+#
+# FUNCTIONS END HERE
+# SCRIPT STARTS HERE
+#
 
 VERBOSITY=0
 
@@ -418,6 +422,9 @@ if [ $EUID != 0 ]; then
     # exit $?
     exit 1;
 fi
+
+# trap keyboard interrupt (control-c) or unexpected quit
+trap ctrl_c SIGINT SIGTERM
 
 # How long we will pause on each MAC address (seconds)
 relay_time=${relay_time-90}
