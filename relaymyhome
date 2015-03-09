@@ -58,6 +58,14 @@ function notify {
     return 0
 }
 
+function pause {
+    if [[ $VERBOSITY -eq 1 ]]; then
+        pause_with_progress_dots $1
+    else
+        sleep $1
+    fi
+}
+
 # Pauses for X seconds
 function pause_with_progress_dots {
     local pause_time
@@ -75,7 +83,7 @@ function pause_with_progress_dots {
 function disassociate_from_wifi_network {
     logf "Disassociating from Wi-Fi network"
     disassociate_from_wifi_network_silently
-    pause_with_progress_dots $sleep_time
+    pause $sleep_time
 }
 
 function disassociate_from_wifi_network_silently {
@@ -85,13 +93,13 @@ function disassociate_from_wifi_network_silently {
 function turn_off_wifi {
     logf "Turning off Wi-Fi" # for ${sleep_time} seconds"
     networksetup -setairportpower $wifi off
-    pause_with_progress_dots $sleep_time
+    pause $sleep_time
 }
 
 function turn_on_wifi {
     logf "Turning on Wi-Fi"
     networksetup -setairportpower $wifi on
-    pause_with_progress_dots $sleep_time
+    pause $sleep_time
 }
 
 # Cycle Wi-Fi
@@ -105,7 +113,7 @@ function unload_internet_sharing {
     if $(launchctl list | grep -q com.apple.InternetSharing.plist); then
         logf "Unloading Internet Sharing plist"
         launchctl unload -w /System/Library/LaunchDaemons/com.apple.InternetSharing.plist
-        pause_with_progress_dots $sleep_time
+        pause $sleep_time
     else
         log "Internet Sharing plist not loaded"
     fi
@@ -113,7 +121,14 @@ function unload_internet_sharing {
 
 # Turn off Internet Sharing if on
 function turn_off_internet_sharing {
-    killall InternetSharing
+    if [[ $VERBOSITY -eq 1 ]]; then
+        echo "Turning off Internet Sharing"
+        killall InternetSharing
+    else
+        # I want this to be idempotent, and if InternetSharing is already off
+        # "No matching processes (belonging to you) were found" is printed to stderr
+        killall InternetSharing 2>/dev/null
+    fi
 }
 
 function turn_on_internet_sharing {
