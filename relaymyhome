@@ -43,6 +43,12 @@ function log () {
     fi
 }
 
+function logf () {
+    if [[ $VERBOSITY -eq 1 ]]; then
+        printf "$@"
+    fi
+}
+
 function notify {
     if [ -z ${speak} ] ; then
         echo "${@}" ;
@@ -67,7 +73,7 @@ function pause_with_progress_dots {
 }
 
 function disassociate_from_wifi_network {
-    printf "Disassociating from Wi-Fi network"
+    logf "Disassociating from Wi-Fi network"
     disassociate_from_wifi_network_silently
     pause_with_progress_dots $sleep_time
 }
@@ -77,13 +83,13 @@ function disassociate_from_wifi_network_silently {
 }
 
 function turn_off_wifi {
-    printf "Turning off Wi-Fi" # for ${sleep_time} seconds"
+    logf "Turning off Wi-Fi" # for ${sleep_time} seconds"
     networksetup -setairportpower $wifi off
     pause_with_progress_dots $sleep_time
 }
 
 function turn_on_wifi {
-    printf "Turning on Wi-Fi"
+    logf "Turning on Wi-Fi"
     networksetup -setairportpower $wifi on
     pause_with_progress_dots $sleep_time
 }
@@ -92,16 +98,16 @@ function turn_on_wifi {
 function cycle_wifi {
     turn_off_wifi
     turn_on_wifi
-    echo "Wi-Fi cycle completed"
+    log "Wi-Fi cycle completed"
 }
 
 function unload_internet_sharing {
     if $(launchctl list | grep -q com.apple.InternetSharing.plist); then
-        printf "Unloading Internet Sharing plist"
+        logf "Unloading Internet Sharing plist"
         launchctl unload -w /System/Library/LaunchDaemons/com.apple.InternetSharing.plist
         pause_with_progress_dots $sleep_time
     else
-        echo "Internet Sharing plist not loaded"
+        log "Internet Sharing plist not loaded"
     fi
 }
 
@@ -144,31 +150,28 @@ function dump_ifconfig {
 # Sets the mac address repeatedly until it sticks
 # Stores the resulting mac address to $currentMAC
 function set_and_wait_for_mac_address_change {
-    echo "Setting and waiting for MAC address to change"
+    log "Setting and waiting for MAC address to change"
     local targetMAC
     targetMAC=$1
     local wait_count
     wait_count=1
     while [ $targetMAC != $currentMAC ] && [ $wait_count -le $wait_tries ]; do
-        printf "\rAttempt $wait_count of $wait_tries ($currentMAC -> $targetMAC)"
+        logf "\rAttempt $wait_count of $wait_tries ($currentMAC -> $targetMAC)"
         sleep 1
         set_and_store_current_mac_address $targetMAC
         wait_count=$((wait_count+1))
     done
     printf "\n"
     if [ $targetMAC != $currentMAC ]; then
-        echo "MAC addresses didn't match"
+        echo "Warning: MAC address not changed successfully"
     fi
-    echo "MAC address is now $currentMAC"
+    log "MAC address is now $currentMAC"
 }
 
 # Run everything we need to spoof the mac address.
 function spoof_mac_address {
     local targetMAC
     targetMAC=$1
-    # echo "Setting address to $targetMAC"
-
-    # Turn on wifi
     turn_on_wifi
     disassociate_from_wifi_network
     unload_internet_sharing
@@ -207,9 +210,9 @@ function spoof_full_list_of_mac_addresses {
     for ((a=1; a<=$num; a++));
     do
         selectedAddr=${Addr[$RANDOM % ${#Addr[@]} ]}
-        echo "-----------------------------------------------"
+        log "-----------------------------------------------"
         echo "Spoofing $wifi to $selectedAddr ($a of $num)"
-        echo "-----------------------------------------------"
+        log "-----------------------------------------------"
         spoof_mac_address $selectedAddr
         wait_for_streetpasses
     done
