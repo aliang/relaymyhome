@@ -47,6 +47,10 @@ For those of you more comfortable on the command line, running `./relaymyhome -h
 What's New
 ==========
 
+**3.0.1**
+
+* Oops, now you can use the orange shirt MAC addresses
+
 **3.0.0**
 
 * Accept shirt and gender parameters to cycle over the appropriate addresses
