@@ -179,14 +179,15 @@ function set_and_wait_for_mac_address_change {
     local wait_count
     wait_count=1
     while [ $targetMAC != $currentMAC ] && [ $wait_count -le $wait_tries ]; do
-        logf "\rAttempt $wait_count of $wait_tries ($currentMAC -> $targetMAC)"
+        printf "\rAttempt $wait_count of $wait_tries ($currentMAC -> $targetMAC)"
         sleep 1
         set_and_store_current_mac_address $targetMAC
         wait_count=$((wait_count+1))
     done
-    logf "\n"
     if [ $targetMAC != $currentMAC ]; then
-        echo "Warning: MAC address not changed successfully"
+        echo "\nWarning: MAC address not changed successfully"
+    else
+        echo "...success"
     fi
     log "MAC address is now $currentMAC"
 }
