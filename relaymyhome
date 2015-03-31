@@ -377,6 +377,7 @@ function ctrl_c {
 }
 
 # TODO: Shuffling doesn't work for 'full' mode, since it's already shuffled
+# TODO: Implement count for everything
 
 function usage {
     echo "$0 [-c count] [-s] [-t time] [-v] [-r] [ADDRESS]"
