@@ -380,12 +380,12 @@ function ctrl_c {
 # TODO: Implement count for everything
 
 function usage {
-    echo "$0 [-c count] [-s] [-t time] [-v] [-r] [ADDRESS]"
+    echo "$0 [-c count] [-s] [-t time] [-r] [-v] [ADDRESS]"
     echo "  -c: number of MAC addresses to spoof (full mode only, default 5)"
     echo "  -s: audibly speak when the script is done"
     echo "  -t: time (s) to wait for connections on each MAC address (default 90)"
-    echo "  -v: run in verbose mode"
     echo "  -r: randomize address spoofing order"
+    echo "  -v: run in verbose mode"
     echo "ADDRESS can be 'full', 'nintendo', 'homepass', 'cleanup',"
     echo "  or mutiple addresses in the form 'XX:XX:XX:XX:XX:XX'"
     echo "  or 'shirt' followed by a shirt color (like 'red' or 'light_blue')"
