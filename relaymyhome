@@ -361,6 +361,12 @@ function spoof_addresses {
     if [[ $SHUFFLE -eq 1 ]]; then
         shuffle_addresses
     fi
+    # if [[ -z ${COUNT+x} ]]; then
+    #     echo "no-op"
+    # else
+    #     set_addresses_to_subset $COUNT
+    # fi
+    # Won't run if COUNT is zero, which is ok
     if [[ -n ${COUNT} ]]; then
         set_addresses_to_subset $COUNT
     fi
@@ -422,6 +428,8 @@ SLEEP_TIME=1
 # Number of tries to set the MAC address before giving up
 # (1 second between tries)
 WAIT_TRIES=30
+# How many addresses of the set to spoof. If null or 0, then spoof them all
+COUNT=0
 
 while getopts hvsrc:t: option
 do
