@@ -238,6 +238,7 @@ function shuffle_addresses() {
 }
 
 # Sets ADDRESSES to the first n elements of ADDRESSES
+# Not used yet
 function set_addresses_to_subset {
     local size index
     size=$1
@@ -247,6 +248,37 @@ function set_addresses_to_subset {
         index=$((size-1))
     fi
     ADDRESSES=${ADDRESSES[@]:0:index}
+}
+
+# Sets ADDRESSES to the 'full' list of 160 MAC addresses
+# Not used yet
+function set_addresses_for_full_mode {
+    local base_address
+    # Set the base MAC address (not used!)
+    base_address="4E:53:50:4F:4F:"
+
+    # Create an array for the last octet of the mac address, limited range.
+    ADDRESSES=($(for X in {0..159} ; do echo ${X} | awk '{printf "%s%02X ", "4E:53:50:4F:4F:", $1}'; done ;))
+}
+
+function spoof_full_mode_addresses {
+    local a num selectedAddr
+    if [ -z ${COUNT} ]; then
+        num=5
+    else
+        num=${COUNT}
+    fi
+
+    echo "Full Mode enabled. Randomly seeding ${num} addresses from full list."
+    for ((a=1; a<=$num; a++));
+    do
+        selectedAddr=${Addr[$RANDOM % ${#Addr[@]} ]}
+        echo "-----------------------------------------------"
+        echo "Spoofing $wifi to $selectedAddr ($a of $num)"
+        echo "-----------------------------------------------"
+        spoof_mac_address $selectedAddr
+        wait_for_streetpasses
+    done
 }
 
 function set_addresses_for_nintendo {
