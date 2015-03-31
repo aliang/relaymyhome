@@ -361,6 +361,9 @@ function spoof_addresses {
     if [[ $SHUFFLE -eq 1 ]]; then
         shuffle_addresses
     fi
+    if [[ -n ${COUNT} ]]; then
+        set_addresses_to_subset $COUNT
+    fi
     for a in "${ADDRESSES[@]}"; do
         echo "-----------------------------------------------"
         echo "Spoofing $wifi to $a ($n of ${#ADDRESSES[@]})"
