@@ -44,7 +44,7 @@ function log () {
 }
 
 function notify {
-    if [ -z ${speak} ] ; then
+    if [ -z ${SPEAK} ] ; then
         echo "${@}" ;
     else
         say "${@}" ;
@@ -397,6 +397,7 @@ trap ctrl_c SIGINT SIGTERM
 
 # These will be overridden by getopts
 VERBOSITY=0
+SPEAK=0
 SHUFFLE=0
 # How long we will pause on each MAC address (seconds)
 RELAY_TIME=90
@@ -411,7 +412,7 @@ do
     case "${option}" in
         h) usage ; exit ;;
         v) VERBOSITY=1 ;;
-        s) speak=1 ;;
+        s) SPEAK=1 ;;
         r) SHUFFLE=1 ;;
         c) count=${OPTARG} ;;
         t) RELAY_TIME=${OPTARG} ;;
