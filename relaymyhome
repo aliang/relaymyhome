@@ -237,6 +237,18 @@ function shuffle_addresses() {
     done
 }
 
+# Sets ADDRESSES to the first n elements of ADDRESSES
+function set_addresses_to_subset {
+    local size index
+    size=$1
+    if [[ $size -le 1 ]]; then
+        index=0
+    else
+        index=$((size-1))
+    fi
+    ADDRESSES=${ADDRESSES[@]:0:index}
+}
+
 function set_addresses_for_nintendo {
     # Taken from: https://docs.google.com/spreadsheet/ccc?key=0AvvH5W4E2lIwdEFCUkxrM085ZGp0UkZlenp6SkJablE#gid=0
     # TODO: Read this from a file
