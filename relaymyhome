@@ -69,7 +69,7 @@ function pause_with_progress_dots {
 function disassociate_from_wifi_network {
     printf "Disassociating from Wi-Fi network"
     disassociate_from_wifi_network_silently
-    pause_with_progress_dots $sleep_time
+    pause_with_progress_dots $SLEEP_TIME
 }
 
 function disassociate_from_wifi_network_silently {
@@ -77,15 +77,15 @@ function disassociate_from_wifi_network_silently {
 }
 
 function turn_off_wifi {
-    printf "Turning off Wi-Fi" # for ${sleep_time} seconds"
+    printf "Turning off Wi-Fi" # for ${SLEEP_TIME} seconds"
     networksetup -setairportpower $wifi off
-    pause_with_progress_dots $sleep_time
+    pause_with_progress_dots $SLEEP_TIME
 }
 
 function turn_on_wifi {
     printf "Turning on Wi-Fi"
     networksetup -setairportpower $wifi on
-    pause_with_progress_dots $sleep_time
+    pause_with_progress_dots $SLEEP_TIME
 }
 
 # Cycle Wi-Fi
@@ -99,7 +99,7 @@ function unload_internet_sharing {
     if $(launchctl list | grep -q com.apple.InternetSharing.plist); then
         printf "Unloading Internet Sharing plist"
         launchctl unload -w /System/Library/LaunchDaemons/com.apple.InternetSharing.plist
-        pause_with_progress_dots $sleep_time
+        pause_with_progress_dots $SLEEP_TIME
     else
         echo "Internet Sharing plist not loaded"
     fi
@@ -400,6 +400,8 @@ VERBOSITY=0
 SHUFFLE=0
 # How long we will pause on each MAC address (seconds)
 RELAY_TIME=90
+# How long to wait between Wi-Fi configuration steps (seconds)
+SLEEP_TIME=1
 
 while getopts hvsrc:t: option
 do
@@ -430,8 +432,6 @@ if [ $EUID != 0 ]; then
     exit 1;
 fi
 
-# How long to wait between Wi-Fi configuration steps (seconds)
-sleep_time=1
 # Number of tries to set the MAC address before giving up
 # (1 second between tries)
 wait_tries=30
