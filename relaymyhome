@@ -149,8 +149,8 @@ function set_and_wait_for_mac_address_change {
     targetMAC=$1
     local wait_count
     wait_count=1
-    while [ $targetMAC != $currentMAC ] && [ $wait_count -le $wait_tries ]; do
-        printf "\rAttempt $wait_count of $wait_tries ($currentMAC -> $targetMAC)"
+    while [ $targetMAC != $currentMAC ] && [ $wait_count -le $WAIT_TRIES ]; do
+        printf "\rAttempt $wait_count of $WAIT_TRIES ($currentMAC -> $targetMAC)"
         sleep 1
         set_and_store_current_mac_address $targetMAC
         wait_count=$((wait_count+1))
@@ -402,6 +402,9 @@ SHUFFLE=0
 RELAY_TIME=90
 # How long to wait between Wi-Fi configuration steps (seconds)
 SLEEP_TIME=1
+# Number of tries to set the MAC address before giving up
+# (1 second between tries)
+WAIT_TRIES=30
 
 while getopts hvsrc:t: option
 do
@@ -431,10 +434,6 @@ if [ $EUID != 0 ]; then
     # exit $?
     exit 1;
 fi
-
-# Number of tries to set the MAC address before giving up
-# (1 second between tries)
-wait_tries=30
 
 wservice=`/usr/sbin/networksetup -listallnetworkservices | grep -Ei '(wi-fi|airport)'`
 # Wi-Fi interface name, used in all sorts of commands
