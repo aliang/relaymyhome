@@ -222,18 +222,19 @@ function reset_mac_address {
 # Taken from http://mywiki.wooledge.org/BashFAQ/026
 # Shuffles the contents of ADDRESSES
 function shuffle_addresses() {
-   local i tmp size max rand
+    log "Shuffling addresses"
+    local i tmp size max rand
 
-   # $RANDOM % (i+1) is biased because of the limited range of $RANDOM
-   # Compensate by using a range which is a multiple of the array size.
-   size=${#ADDRESSES[*]}
-   max=$(( 32768 / size * size ))
+    # $RANDOM % (i+1) is biased because of the limited range of $RANDOM
+    # Compensate by using a range which is a multiple of the array size.
+    size=${#ADDRESSES[*]}
+    max=$(( 32768 / size * size ))
 
-   for ((i=size-1; i>0; i--)); do
-      while (( (rand=$RANDOM) >= max )); do :; done
-      rand=$(( rand % (i+1) ))
-      tmp=${ADDRESSES[i]} ADDRESSES[i]=${ADDRESSES[rand]} ADDRESSES[rand]=$tmp
-   done
+    for ((i=size-1; i>0; i--)); do
+        while (( (rand=$RANDOM) >= max )); do :; done
+        rand=$(( rand % (i+1) ))
+        tmp=${ADDRESSES[i]} ADDRESSES[i]=${ADDRESSES[rand]} ADDRESSES[rand]=$tmp
+    done
 }
 
 function set_addresses_for_nintendo {
@@ -345,6 +346,9 @@ function set_addresses_for_gender {
 function spoof_addresses {
     local n
     n=1
+    if [[ $SHUFFLE -eq 1 ]]; then
+        shuffle_addresses
+    fi
     for a in "${ADDRESSES[@]}"; do
         echo "-----------------------------------------------"
         echo "Spoofing $wifi to $a ($n of ${#ADDRESSES[@]})"
@@ -372,13 +376,16 @@ function ctrl_c {
     exit $?
 }
 
+# TODO: Shuffling doesn't work for 'full' mode, since it's already shuffled
+
 function usage {
-    echo "$0 [-c count] [-s] [-t time] [-v] [ADDRESS]"
+    echo "$0 [-c count] [-s] [-t time] [-v] [-r] [ADDRESS]"
     echo "  -c: number of MAC addresses to spoof (full mode only, default 5)"
     echo "  -s: audibly speak when the script is done"
     echo "  -t: time (s) to wait for connections on each MAC address (default 90)"
     echo "  -v: run in verbose mode"
-    echo "  ADDRESS can be 'full', 'nintendo', 'homepass', 'cleanup',"
+    echo "  -r: randomize address spoofing order"
+    echo "ADDRESS can be 'full', 'nintendo', 'homepass', 'cleanup',"
     echo "  or mutiple addresses in the form 'XX:XX:XX:XX:XX:XX'"
     echo "  or 'shirt' followed by a shirt color (like 'red' or 'light_blue')"
     echo "  or 'gender' followed by 'male' or 'female'"
@@ -388,14 +395,17 @@ function usage {
 # trap keyboard interrupt (control-c) or unexpected quit
 trap ctrl_c SIGINT SIGTERM
 
+# These will be overridden by getopts
 VERBOSITY=0
+SHUFFLE=0
 
-while getopts hvsc:t: option
+while getopts hvsrc:t: option
 do
     case "${option}" in
         h) usage ; exit ;;
         v) VERBOSITY=1 ;;
         s) speak=1 ;;
+        r) SHUFFLE=1 ;;
         c) count=${OPTARG} ;;
         t) relay_time=${OPTARG} ;;
         *) usage ; exit 1 ;
@@ -437,10 +447,6 @@ currentMAC=$WirelessMAC
 
 log "Wi-Fi adapter is: $wifi"
 log "Original MAC address is: $WirelessMAC"
-
-### TODO:
-### * Parse other cli options for verbosity and say vs silent
-### * Put the list of MACs into a sqlite3 db and query only oldest visited ones?
 
 if [[ $1 == "full" ]]; then
     spoof_full_list_of_mac_addresses
