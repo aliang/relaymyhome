@@ -236,7 +236,7 @@ function shuffle_addresses() {
    done
 }
 
-function spoof_nintendo_mac_addresses {
+function set_addresses_for_nintendo {
     # Taken from: https://docs.google.com/spreadsheet/ccc?key=0AvvH5W4E2lIwdEFCUkxrM085ZGp0UkZlenp6SkJablE#gid=0
     # TODO: Read this from a file
     ADDRESSES=()
@@ -245,12 +245,15 @@ function spoof_nintendo_mac_addresses {
     ADDRESSES[2]='00:0D:67:15:D5:44'
     ADDRESSES[3]='00:0D:67:15:D2:59'
     ADDRESSES[4]='00:0D:67:15:D6:FD'
+}
 
+function spoof_nintendo_mac_addresses {
     echo "Connecting to the five Nintendo World relays."
+    set_addresses_for_nintendo
     spoof_addresses
 }
 
-function spoof_homepass_mac_addresses {
+function set_addresses_for_homepass {
     ADDRESSES=()
     ADDRESSES[0]='4E:53:50:4F:4F:40'
     ADDRESSES[1]='4E:53:50:4F:4F:41'
@@ -268,8 +271,11 @@ function spoof_homepass_mac_addresses {
     ADDRESSES[13]='4E:53:50:4F:4F:4D'
     ADDRESSES[14]='4E:53:50:4F:4F:4E'
     ADDRESSES[15]='4E:53:50:4F:4F:4F'
+}
 
+function spoof_homepass_mac_addresses {
     echo "Connecting to the sixteen Homepass relays."
+    set_addresses_for_homepass
     spoof_addresses
 }
 
