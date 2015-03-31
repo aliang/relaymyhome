@@ -179,8 +179,8 @@ function spoof_mac_address {
 
 function wait_for_streetpasses {
     turn_on_internet_sharing
-    echo "Pausing to allow connections for ${relay_time} seconds"
-    pause_with_progress_dots $relay_time
+    echo "Pausing to allow connections for ${RELAY_TIME} seconds"
+    pause_with_progress_dots $RELAY_TIME
 }
 
 function spoof_full_list_of_mac_addresses {
@@ -398,6 +398,8 @@ trap ctrl_c SIGINT SIGTERM
 # These will be overridden by getopts
 VERBOSITY=0
 SHUFFLE=0
+# How long we will pause on each MAC address (seconds)
+RELAY_TIME=90
 
 while getopts hvsrc:t: option
 do
@@ -407,7 +409,7 @@ do
         s) speak=1 ;;
         r) SHUFFLE=1 ;;
         c) count=${OPTARG} ;;
-        t) relay_time=${OPTARG} ;;
+        t) RELAY_TIME=${OPTARG} ;;
         *) usage ; exit 1 ;
     esac
 done
@@ -428,8 +430,6 @@ if [ $EUID != 0 ]; then
     exit 1;
 fi
 
-# How long we will pause on each MAC address (seconds)
-relay_time=${relay_time-90}
 # How long to wait between Wi-Fi configuration steps (seconds)
 sleep_time=1
 # Number of tries to set the MAC address before giving up
