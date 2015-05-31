@@ -90,7 +90,7 @@ function pause_with_progress_dots {
 
 # Store wifi service name to variable WIFI_SERVICE
 function store_wifi_service {
-    WIFI_SERVICE=`/usr/sbin/networksetup -listallnetworkservices | grep -Ei '(wi-fi|airport)'`
+    WIFI_SERVICE=$(/usr/sbin/networksetup -listallnetworkservices | grep -Ei '(wi-fi|airport)')
 }
 
 # Store wifi interface name to variable WIFI_INTERFACE
