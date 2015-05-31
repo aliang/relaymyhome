@@ -88,6 +88,11 @@ function pause_with_progress_dots {
     printf "\n"
 }
 
+# Store original hardware MAC address in uppercase to variable "HARDWARE_MAC"
+function store_hardware_mac {
+    HARDWARE_MAC=$(networksetup -getmacaddress "${wifi}" | awk '{print $3}' | tr '[:lower:]' '[:upper:]')
+}
+
 function disassociate_from_wifi_network {
     logf "Disassociating from Wi-Fi network"
     disassociate_from_wifi_network_silently
@@ -243,7 +248,7 @@ function spoof_full_list_of_mac_addresses {
 }
 
 function reset_mac_address {
-    spoof_mac_address $WirelessMAC
+    spoof_mac_address $HARDWARE_MAC
 }
 
 function spoof_nintendo_mac_addresses {
@@ -438,14 +443,13 @@ wait_tries=30
 wservice=`/usr/sbin/networksetup -listallnetworkservices | grep -Ei '(wi-fi|airport)'`
 # Wi-Fi interface name, used in all sorts of commands
 wifi=$(networksetup -listallhardwareports | awk "/$wservice/,/Ethernet/"' getline { print $2 }')
-# Original hardware MAC address, uppercase
-WirelessMAC=$(networksetup -getmacaddress "${wifi}" | awk '{print $3}' | tr '[:lower:]' '[:upper:]')
+store_hardware_mac
 # Variable to store the current spoofed MAC address.
 # Used to poll for whether the MAC was set successfully
-currentMAC=$WirelessMAC
+currentMAC=$HARDWARE_MAC
 
 log "Wi-Fi adapter is: $wifi"
-log "Original MAC address is: $WirelessMAC"
+log "Original MAC address is: $HARDWARE_MAC"
 
 ### TODO:
 ### * Parse other cli options for verbosity and say vs silent
