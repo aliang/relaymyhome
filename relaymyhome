@@ -88,9 +88,19 @@ function pause_with_progress_dots {
     printf "\n"
 }
 
-# Store original hardware MAC address in uppercase to variable "HARDWARE_MAC"
+# Store wifi service name to variable WIFI_SERVICE
+function store_wifi_service {
+    WIFI_SERVICE=`/usr/sbin/networksetup -listallnetworkservices | grep -Ei '(wi-fi|airport)'`
+}
+
+# Store wifi interface name to variable WIFI_INTERFACE
+function store_wifi_interface {
+    WIFI_INTERFACE=$(networksetup -listallhardwareports | awk "/$WIFI_SERVICE/,/Ethernet/"' getline { print $2 }')
+}
+
+# Store original hardware MAC address in uppercase to variable HARDWARE_MAC
 function store_hardware_mac {
-    HARDWARE_MAC=$(networksetup -getmacaddress "${wifi}" | awk '{print $3}' | tr '[:lower:]' '[:upper:]')
+    HARDWARE_MAC=$(networksetup -getmacaddress "${WIFI_INTERFACE}" | awk '{print $3}' | tr '[:lower:]' '[:upper:]')
 }
 
 function disassociate_from_wifi_network {
@@ -105,13 +115,13 @@ function disassociate_from_wifi_network_silently {
 
 function turn_off_wifi {
     logf "Turning off Wi-Fi" # for ${sleep_time} seconds"
-    networksetup -setairportpower $wifi off
+    networksetup -setairportpower $WIFI_INTERFACE off
     pause $sleep_time
 }
 
 function turn_on_wifi {
     logf "Turning on Wi-Fi"
-    networksetup -setairportpower $wifi on
+    networksetup -setairportpower $WIFI_INTERFACE on
     pause $sleep_time
 }
 
@@ -151,12 +161,12 @@ function turn_on_internet_sharing {
 function set_mac_address {
     local targetMAC
     targetMAC=$1
-    ifconfig $wifi ether $targetMAC
+    ifconfig $WIFI_INTERFACE ether $targetMAC
 }
 
 # Stores the current mac address to $currentMAC as uppercase.
 function store_current_mac_address {
-    currentMAC=$(ifconfig ${wifi} ether | grep ether | awk '{print $2}' | tr '[:lower:]' '[:upper:]')
+    currentMAC=$(ifconfig ${WIFI_INTERFACE} ether | grep ether | awk '{print $2}' | tr '[:lower:]' '[:upper:]')
 }
 
 # Sets the mac address. Stores the resulting mac address to $currentMAC.
@@ -170,8 +180,8 @@ function set_and_store_current_mac_address {
 }
 
 function dump_ifconfig {
-    echo "Here is the output of ifconfig $wifi:"
-    echo `ifconfig $wifi`
+    echo "Here is the output of ifconfig $WIFI_INTERFACE:"
+    echo `ifconfig $WIFI_INTERFACE`
     echo "--------"
 }
 
@@ -240,7 +250,7 @@ function spoof_full_list_of_mac_addresses {
     do
         selectedAddr=${Addr[$RANDOM % ${#Addr[@]} ]}
         log "-----------------------------------------------"
-        echo "Spoofing $wifi to $selectedAddr ($a of $num)"
+        echo "Spoofing $WIFI_INTERFACE to $selectedAddr ($a of $num)"
         log "-----------------------------------------------"
         spoof_mac_address $selectedAddr
         wait_for_streetpasses
@@ -356,7 +366,7 @@ function spoof_addresses {
     n=1
     for a in "${ADDRESSES[@]}"; do
         log "-----------------------------------------------"
-        echo "Spoofing $wifi to $a ($n of ${#ADDRESSES[@]})"
+        echo "Spoofing $WIFI_INTERFACE to $a ($n of ${#ADDRESSES[@]})"
         log "-----------------------------------------------"
         spoof_mac_address $a
         wait_for_streetpasses
@@ -440,15 +450,14 @@ sleep_time=1
 # (1 second between tries)
 wait_tries=30
 
-wservice=`/usr/sbin/networksetup -listallnetworkservices | grep -Ei '(wi-fi|airport)'`
-# Wi-Fi interface name, used in all sorts of commands
-wifi=$(networksetup -listallhardwareports | awk "/$wservice/,/Ethernet/"' getline { print $2 }')
+store_wifi_service
+store_wifi_interface
 store_hardware_mac
 # Variable to store the current spoofed MAC address.
 # Used to poll for whether the MAC was set successfully
 currentMAC=$HARDWARE_MAC
 
-log "Wi-Fi adapter is: $wifi"
+log "Wi-Fi adapter is: $WIFI_INTERFACE"
 log "Original MAC address is: $HARDWARE_MAC"
 
 ### TODO:
