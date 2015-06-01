@@ -406,6 +406,8 @@ function usage {
 # SCRIPT STARTS HERE
 #
 
+# Set verbosity earlier in case we want to do verbose things
+# during option parsing
 VERBOSITY=0
 
 while getopts hvsc:t: option
