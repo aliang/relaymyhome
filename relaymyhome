@@ -106,7 +106,7 @@ function store_hardware_mac {
 function disassociate_from_wifi_network {
     logf "Disassociating from Wi-Fi network"
     disassociate_from_wifi_network_silently
-    pause $sleep_time
+    pause $SLEEP_TIME
 }
 
 function disassociate_from_wifi_network_silently {
@@ -114,15 +114,15 @@ function disassociate_from_wifi_network_silently {
 }
 
 function turn_off_wifi {
-    logf "Turning off Wi-Fi" # for ${sleep_time} seconds"
+    logf "Turning off Wi-Fi" # for ${SLEEP_TIME} seconds"
     networksetup -setairportpower $WIFI_INTERFACE off
-    pause $sleep_time
+    pause $SLEEP_TIME
 }
 
 function turn_on_wifi {
     logf "Turning on Wi-Fi"
     networksetup -setairportpower $WIFI_INTERFACE on
-    pause $sleep_time
+    pause $SLEEP_TIME
 }
 
 # Cycle Wi-Fi
@@ -136,7 +136,7 @@ function unload_internet_sharing {
     if $(launchctl list | grep -q com.apple.InternetSharing.plist); then
         logf "Unloading Internet Sharing plist"
         launchctl unload -w /System/Library/LaunchDaemons/com.apple.InternetSharing.plist
-        pause $sleep_time
+        pause $SLEEP_TIME
     else
         log "Internet Sharing plist not loaded"
     fi
@@ -445,7 +445,7 @@ trap ctrl_c SIGINT SIGTERM
 # How long we will pause on each MAC address (seconds)
 relay_time=${relay_time-90}
 # How long to wait between Wi-Fi configuration steps (seconds)
-sleep_time=1
+SLEEP_TIME=1
 # Number of tries to set the MAC address before giving up
 # (1 second between tries)
 wait_tries=30
