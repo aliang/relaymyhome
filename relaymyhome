@@ -240,9 +240,6 @@ function spoof_full_list_of_mac_addresses {
 
     echo "Full Mode enabled. Randomly seeding ${num} addresses from full list."
 
-    # TODO: Back up existing Internet Sharing plist (this would allow us to set the SSID)
-    # TODO: Copy settings in place of existing Internet Sharing plist
-
     for ((a=1; a<=$num; a++));
     do
         selectedAddr=${Addr[$RANDOM % ${#Addr[@]} ]}
@@ -390,6 +387,7 @@ function ctrl_c {
 function usage {
     echo "$0 [-c count] [-s] [-t time] [-v] [ADDRESS]"
     echo "  -c: number of MAC addresses to spoof (full mode only, default 5)"
+    echo "  -r: randomize the order of addresses"
     echo "  -s: audibly speak when the script is done"
     echo "  -t: time (s) to wait for connections on each MAC address (default 90)"
     echo "  -v: run in verbose mode"
@@ -462,8 +460,9 @@ WAIT_TRIES=30
 # Should we randomize the order of addresses to try?
 RANDOMIZE=${RANDOMIZE-0}
 
-### TODO:
-### * Put the list of MACs into a sqlite3 db and query only oldest visited ones?
+# TODO: Put the list of MACs into a sqlite3 db and query only oldest visited ones?
+# TODO: Back up existing Internet Sharing plist (this would allow us to set the SSID)
+# TODO: Copy settings in place of existing Internet Sharing plist
 
 if [[ $1 == "full" ]]; then
     spoof_full_list_of_mac_addresses
