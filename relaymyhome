@@ -441,6 +441,17 @@ fi
 # trap keyboard interrupt (control-c) or unexpected quit
 trap ctrl_c SIGINT SIGTERM
 
+store_wifi_service
+store_wifi_interface
+store_hardware_mac
+
+log "Wi-Fi service name is: $WIFI_SERVICE"
+log "Wi-Fi adapter is: $WIFI_INTERFACE"
+log "Original MAC address is: $HARDWARE_MAC"
+
+# Variable to store the current spoofed MAC address.
+# Used to poll for whether the MAC was set successfully
+CURRENT_MAC=$HARDWARE_MAC
 # How long we will pause on each MAC address (seconds)
 RELAY_TIME=${RELAY_TIME-90}
 # How long to wait between Wi-Fi configuration steps (seconds)
@@ -450,17 +461,6 @@ SLEEP_TIME=1
 WAIT_TRIES=30
 # Should we randomize the order of addresses to try?
 RANDOMIZE=${RANDOMIZE-0}
-
-store_wifi_service
-store_wifi_interface
-store_hardware_mac
-# Variable to store the current spoofed MAC address.
-# Used to poll for whether the MAC was set successfully
-CURRENT_MAC=$HARDWARE_MAC
-
-log "Wi-Fi service name is: $WIFI_SERVICE"
-log "Wi-Fi adapter is: $WIFI_INTERFACE"
-log "Original MAC address is: $HARDWARE_MAC"
 
 ### TODO:
 ### * Put the list of MACs into a sqlite3 db and query only oldest visited ones?
