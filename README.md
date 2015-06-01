@@ -99,6 +99,7 @@ Script has been updated for the new "six at a time" feature of StreetPass Relay.
 
 TODO
 ====
+* Better exit codes when bad arguments are passed
 * Better cleanup after the script is done by trapping EXIT signal as well
 * Set the SSID programatically via /etc/bootpd.plist or /Library/Preferences/SystemConfiguration/com.apple.nat.plist, or whatever plist it is
 * More robust InternetSharing startup
