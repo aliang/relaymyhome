@@ -444,7 +444,6 @@ log "Wi-Fi adapter is: $WIFI_INTERFACE"
 log "Original MAC address is: $HARDWARE_MAC"
 
 ### TODO:
-### * Parse other cli options for verbosity and say vs silent
 ### * Put the list of MACs into a sqlite3 db and query only oldest visited ones?
 
 if [[ $1 == "full" ]]; then
