@@ -409,13 +409,14 @@ function usage {
 # during option parsing
 VERBOSITY=0
 
-while getopts hvsc:t: option
+while getopts hvscr:t: option
 do
     case "${option}" in
         h) usage ; exit ;;
         v) VERBOSITY=1 ;;
         s) SPEAK=1 ;;
         c) COUNT=${OPTARG} ;;
+        r) echo "Not implemented yet"; RANDOMIZE=1 ;;
         t) RELAY_TIME=${OPTARG} ;;
         *) usage ; exit 1 ;
     esac
@@ -447,6 +448,8 @@ SLEEP_TIME=1
 # Number of tries to set the MAC address before giving up
 # (1 second between tries)
 wait_tries=30
+# Should we randomize the order of addresses to try?
+RANDOMIZE=${RANDOMIZE-0}
 
 store_wifi_service
 store_wifi_interface
