@@ -229,6 +229,8 @@ function spoof_full_list_of_mac_addresses {
     # Generate a full list of 160 MACs when "full" mode is specified
     # To use full mode: ./relaymyhome full
     # Check the repo at github for more information.
+    local num
+    num=${COUNT-5}
 
     # Set the base MAC address
     baseAddr="4E:53:50:4F:4F:"
@@ -236,11 +238,6 @@ function spoof_full_list_of_mac_addresses {
     # Create an array for the last octet of the mac address, limited range.
     Addr=($(for X in {0..159} ; do echo ${X} | awk '{printf "%s%02X ", "4E:53:50:4F:4F:", $1}'; done ;))
 
-    if [ -z ${count} ]; then
-        num=5
-    else
-        num=${count}
-    fi
     echo "Full Mode enabled. Randomly seeding ${num} addresses from full list."
 
     # TODO: Back up existing Internet Sharing plist (this would allow us to set the SSID)
@@ -417,13 +414,13 @@ do
         h) usage ; exit ;;
         v) VERBOSITY=1 ;;
         s) speak=1 ;;
-        c) count=${OPTARG} ;;
+        c) COUNT=${OPTARG} ;;
         t) RELAY_TIME=${OPTARG} ;;
         *) usage ; exit 1 ;
     esac
 done
 
-shift $(( OPTIND - 1 ))
+shift $((OPTIND-1));
 
 echo "To view advanced usage, type '$0 -h'"
 
