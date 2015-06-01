@@ -456,6 +456,7 @@ store_hardware_mac
 # Used to poll for whether the MAC was set successfully
 currentMAC=$HARDWARE_MAC
 
+log "Wi-Fi service name is: $WIFI_SERVICE"
 log "Wi-Fi adapter is: $WIFI_INTERFACE"
 log "Original MAC address is: $HARDWARE_MAC"
 
