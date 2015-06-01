@@ -278,6 +278,22 @@ function spoof_homepass_mac_addresses {
     spoof_addresses
 }
 
+# Knuth-Fisher-Yates shuffle, see http://mywiki.wooledge.org/BashFAQ/026
+function shuffle_addresses() {
+   local i tmp size max rand
+
+   # $RANDOM % (i+1) is biased because of the limited range of $RANDOM
+   # Compensate by using a range which is a multiple of the array size.
+   size=${#ADDRESSES[*]}
+   max=$(( 32768 / size * size ))
+
+   for ((i=size-1; i>0; i--)); do
+      while (( (rand=$RANDOM) >= max )); do :; done
+      rand=$(( rand % (i+1) ))
+      tmp=${ADDRESSES[i]} ADDRESSES[i]=${ADDRESSES[rand]} ADDRESSES[rand]=$tmp
+   done
+}
+
 function set_addresses_to_sequence_of_16 {
     local base_address
     base_address=$1
