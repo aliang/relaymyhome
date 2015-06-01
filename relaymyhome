@@ -164,12 +164,12 @@ function set_mac_address {
     ifconfig $WIFI_INTERFACE ether $targetMAC
 }
 
-# Stores the current mac address to $currentMAC as uppercase.
+# Stores the current mac address to $CURRENT_MAC as uppercase.
 function store_current_mac_address {
-    currentMAC=$(ifconfig ${WIFI_INTERFACE} ether | grep ether | awk '{print $2}' | tr '[:lower:]' '[:upper:]')
+    CURRENT_MAC=$(ifconfig ${WIFI_INTERFACE} ether | grep ether | awk '{print $2}' | tr '[:lower:]' '[:upper:]')
 }
 
-# Sets the mac address. Stores the resulting mac address to $currentMAC.
+# Sets the mac address. Stores the resulting mac address to $CURRENT_MAC.
 # Assumes the wifi is on
 function set_and_store_current_mac_address {
     local targetMAC
@@ -186,25 +186,25 @@ function dump_ifconfig {
 }
 
 # Sets the mac address repeatedly until it sticks
-# Stores the resulting mac address to $currentMAC
+# Stores the resulting mac address to $CURRENT_MAC
 function set_and_wait_for_mac_address_change {
     log "Setting and waiting for MAC address to change"
     local targetMAC
     targetMAC=$1
     local wait_count
     wait_count=1
-    while [ $targetMAC != $currentMAC ] && [ $wait_count -le $wait_tries ]; do
-        printf "\rAttempt $wait_count of $wait_tries ($currentMAC -> $targetMAC)"
+    while [ $targetMAC != $CURRENT_MAC ] && [ $wait_count -le $wait_tries ]; do
+        printf "\rAttempt $wait_count of $wait_tries ($CURRENT_MAC -> $targetMAC)"
         sleep 1
         set_and_store_current_mac_address $targetMAC
         wait_count=$((wait_count+1))
     done
-    if [ $targetMAC != $currentMAC ]; then
+    if [ $targetMAC != $CURRENT_MAC ]; then
         echo "\nWarning: MAC address not changed successfully"
     else
         echo "...success"
     fi
-    log "MAC address is now $currentMAC"
+    log "MAC address is now $CURRENT_MAC"
 }
 
 # Run everything we need to spoof the mac address.
@@ -454,7 +454,7 @@ store_wifi_interface
 store_hardware_mac
 # Variable to store the current spoofed MAC address.
 # Used to poll for whether the MAC was set successfully
-currentMAC=$HARDWARE_MAC
+CURRENT_MAC=$HARDWARE_MAC
 
 log "Wi-Fi service name is: $WIFI_SERVICE"
 log "Wi-Fi adapter is: $WIFI_INTERFACE"
