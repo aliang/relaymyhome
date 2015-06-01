@@ -221,8 +221,8 @@ function spoof_mac_address {
 
 function wait_for_streetpasses {
     turn_on_internet_sharing
-    echo "Pausing to allow connections for ${relay_time} seconds"
-    pause_with_progress_dots $relay_time
+    echo "Pausing to allow connections for ${RELAY_TIME} seconds"
+    pause_with_progress_dots $RELAY_TIME
 }
 
 function spoof_full_list_of_mac_addresses {
@@ -418,7 +418,7 @@ do
         v) VERBOSITY=1 ;;
         s) speak=1 ;;
         c) count=${OPTARG} ;;
-        t) relay_time=${OPTARG} ;;
+        t) RELAY_TIME=${OPTARG} ;;
         *) usage ; exit 1 ;
     esac
 done
@@ -443,7 +443,7 @@ fi
 trap ctrl_c SIGINT SIGTERM
 
 # How long we will pause on each MAC address (seconds)
-relay_time=${relay_time-90}
+RELAY_TIME=${RELAY_TIME-90}
 # How long to wait between Wi-Fi configuration steps (seconds)
 SLEEP_TIME=1
 # Number of tries to set the MAC address before giving up
