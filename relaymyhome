@@ -273,24 +273,7 @@ function spoof_nintendo_mac_addresses {
 }
 
 function spoof_homepass_mac_addresses {
-    ADDRESSES=()
-    ADDRESSES[0]='4E:53:50:4F:4F:40'
-    ADDRESSES[1]='4E:53:50:4F:4F:41'
-    ADDRESSES[2]='4E:53:50:4F:4F:42'
-    ADDRESSES[3]='4E:53:50:4F:4F:43'
-    ADDRESSES[4]='4E:53:50:4F:4F:44'
-    ADDRESSES[5]='4E:53:50:4F:4F:45'
-    ADDRESSES[6]='4E:53:50:4F:4F:46'
-    ADDRESSES[7]='4E:53:50:4F:4F:47'
-    ADDRESSES[8]='4E:53:50:4F:4F:48'
-    ADDRESSES[9]='4E:53:50:4F:4F:49'
-    ADDRESSES[10]='4E:53:50:4F:4F:4A'
-    ADDRESSES[11]='4E:53:50:4F:4F:4B'
-    ADDRESSES[12]='4E:53:50:4F:4F:4C'
-    ADDRESSES[13]='4E:53:50:4F:4F:4D'
-    ADDRESSES[14]='4E:53:50:4F:4F:4E'
-    ADDRESSES[15]='4E:53:50:4F:4F:4F'
-
+    set_addresses_to_sequence_of_16 "4E:53:50:4F:4F:4"
     echo "Connecting to the sixteen Homepass relays."
     spoof_addresses
 }
