@@ -58,7 +58,7 @@ function header () {
 }
 
 function notify {
-    if [ -z ${speak} ] ; then
+    if [ -z ${SPEAK} ] ; then
         echo "${@}" ;
     else
         say "${@}" ;
@@ -413,7 +413,7 @@ do
     case "${option}" in
         h) usage ; exit ;;
         v) VERBOSITY=1 ;;
-        s) speak=1 ;;
+        s) SPEAK=1 ;;
         c) COUNT=${OPTARG} ;;
         t) RELAY_TIME=${OPTARG} ;;
         *) usage ; exit 1 ;
