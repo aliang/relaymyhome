@@ -363,18 +363,30 @@ function spoof_addresses {
 function cleanup {
     reset_mac_address
     turn_off_internet_sharing
+}
 
+function cleanup_on_int {
+    # user quit midway through, so we should revert
+    # the MAC address by calling our cleanup function
+    trap - INT
+    echo "*** Interrupted, cleaning up ***"
+    cleanup
+    kill -INT $$
+}
+
+function cleanup_on_term {
+    trap - TERM
+    echo "*** Killed, cleaning up ***"
+    cleanup
+    kill -TERM $$
+}
+
+function cleanup_on_exit {
+    trap - INT TERM
+    cleanup
     echo "Cycling of Relays has completed, MAC address reverted."
     notify "Time to check your StreetPasses!"
     return 0
-}
-
-function ctrl_c {
-    # user quit midway through, so we should revert
-    # the MAC address by calling our cleanup function
-    echo "*** Interrupted, cleaning up ***"
-    cleanup
-    exit $?
 }
 
 function usage {
@@ -430,7 +442,8 @@ if [ $EUID != 0 ]; then
 fi
 
 # trap keyboard interrupt (control-c) or unexpected quit
-trap ctrl_c SIGINT SIGTERM
+trap cleanup_on_int INT
+trap cleanup_on_term TERM
 
 store_wifi_service
 store_wifi_interface
@@ -498,5 +511,4 @@ if [[ $COUNT > 0 ]]; then
 fi
 
 spoof_addresses
-# TODO: Should do this on exit, not as a naked call
-cleanup
+cleanup_on_exit
