@@ -33,6 +33,10 @@
 
 # Tested in OS X 10.9.5 (Mavericks)
 
+#
+# LOGGING / FLOW CONTROL
+#
+
 function log () {
     if [[ $VERBOSITY -eq 1 ]]; then
         echo "$@"
@@ -87,6 +91,16 @@ function pause_with_progress_dots {
     done
     printf "\n"
 }
+
+function dump_ifconfig {
+    echo "Here is the output of ifconfig $WIFI_INTERFACE:"
+    echo `ifconfig $WIFI_INTERFACE`
+    echo "--------"
+}
+
+#
+# SPOOFING UTILITY FUNCTIONS
+#
 
 # Store wifi service name to variable WIFI_SERVICE
 function store_wifi_service {
@@ -179,12 +193,6 @@ function set_and_store_current_mac_address {
     store_current_mac_address
 }
 
-function dump_ifconfig {
-    echo "Here is the output of ifconfig $WIFI_INTERFACE:"
-    echo `ifconfig $WIFI_INTERFACE`
-    echo "--------"
-}
-
 # Sets the mac address repeatedly until it sticks
 # Stores the resulting mac address to $CURRENT_MAC
 function set_and_wait_for_mac_address_change {
@@ -225,133 +233,118 @@ function wait_for_streetpasses {
     pause_with_progress_dots $RELAY_TIME
 }
 
-function spoof_full_list_of_mac_addresses {
-    # Generate a full list of 160 MACs when "full" mode is specified
-    # To use full mode: ./relaymyhome full
-    # Check the repo at github for more information.
-    local num
-    num=${COUNT-5}
-
-    # Set the base MAC address
-    baseAddr="4E:53:50:4F:4F:"
-
-    # Create an array for the last octet of the mac address, limited range.
-    Addr=($(for X in {0..159} ; do echo ${X} | awk '{printf "%s%02X ", "4E:53:50:4F:4F:", $1}'; done ;))
-
-    echo "Full Mode enabled. Randomly seeding ${num} addresses from full list."
-
-    for ((a=1; a<=$num; a++));
-    do
-        selectedAddr=${Addr[$RANDOM % ${#Addr[@]} ]}
-        log "-----------------------------------------------"
-        echo "Spoofing $WIFI_INTERFACE to $selectedAddr ($a of $num)"
-        log "-----------------------------------------------"
-        spoof_mac_address $selectedAddr
-        wait_for_streetpasses
-    done
-}
-
 function reset_mac_address {
     spoof_mac_address $HARDWARE_MAC
 }
 
-function spoof_nintendo_mac_addresses {
-    # Taken from: https://docs.google.com/spreadsheet/ccc?key=0AvvH5W4E2lIwdEFCUkxrM085ZGp0UkZlenp6SkJablE#gid=0
-    # TODO: Read this from a file
-    ADDRESSES=()
-    ADDRESSES[0]='00:0D:67:15:2D:82'
-    ADDRESSES[1]='00:0D:67:15:D7:21'
-    ADDRESSES[2]='00:0D:67:15:D5:44'
-    ADDRESSES[3]='00:0D:67:15:D2:59'
-    ADDRESSES[4]='00:0D:67:15:D6:FD'
+#
+# SETTING UP LIST OF ADDRESSES
+#
 
-    echo "Connecting to the five Nintendo World relays."
-    spoof_addresses
-}
-
-function spoof_homepass_mac_addresses {
-    set_addresses_to_sequence_of_16 "4E:53:50:4F:4F:4"
-    echo "Connecting to the sixteen Homepass relays."
-    spoof_addresses
+function set_addresses_to_first_n {
+    echo "Taking first $1 addresses"
+    ADDRESSES=("${ADDRESSES[@]::$1}")
 }
 
 # Knuth-Fisher-Yates shuffle, see http://mywiki.wooledge.org/BashFAQ/026
-function shuffle_addresses() {
-   local i tmp size max rand
+function shuffle_addresses {
+    echo "Randomizing address order"
+    local i tmp size max rand
+    # $RANDOM % (i+1) is biased because of the limited range of $RANDOM
+    # Compensate by using a range which is a multiple of the array size.
+    size=${#ADDRESSES[*]}
+    max=$(( 32768 / size * size ))
 
-   # $RANDOM % (i+1) is biased because of the limited range of $RANDOM
-   # Compensate by using a range which is a multiple of the array size.
-   size=${#ADDRESSES[*]}
-   max=$(( 32768 / size * size ))
-
-   for ((i=size-1; i>0; i--)); do
-      while (( (rand=$RANDOM) >= max )); do :; done
-      rand=$(( rand % (i+1) ))
-      tmp=${ADDRESSES[i]} ADDRESSES[i]=${ADDRESSES[rand]} ADDRESSES[rand]=$tmp
-   done
+    for ((i=size-1; i>0; i--)); do
+        while (( (rand=$RANDOM) >= max )); do :; done
+        rand=$(( rand % (i+1) ))
+        tmp=${ADDRESSES[i]} ADDRESSES[i]=${ADDRESSES[rand]} ADDRESSES[rand]=$tmp
+    done
 }
 
-function set_addresses_to_sequence_of_16 {
-    local base_address
+function append_sequence_of_16_addresses {
+    local base_address sequence_list
     base_address=$1
     # Sort of like this:
-    # # ADDRESSES=($(for X in {0..15} ; do echo ${X} | awk '{printf "%s%01X ", "4E:53:50:4F:4F:0", $1}'; done ;))
-    ADDRESSES=($(for X in {0..15} ; do echo $base_address ${X} | awk '{printf "%s%01X ", $1, $2}'; done ;))
+    # sequence_list=($(for X in {0..15} ; do echo ${X} | awk '{printf "%s%01X ", "4E:53:50:4F:4F:0", $1}'; done ;))
+    sequence_list=($(for X in {0..15} ; do echo $base_address ${X} | awk '{printf "%s%01X ", $1, $2}'; done ;))
+    ADDRESSES=("${ADDRESSES[@]}" "${sequence_list[@]}")
 }
 
-function spoof_addresses_for_shirt_color {
-    echo "Connecting to the $1 shirt Mii relays."
-    set_addresses_for_shirt_color $1
-    spoof_addresses
+function append_full_list_of_mac_addresses {
+    local full_list temp
+    echo "Adding full list of addresses"
+    # Create an array for the last octet of the mac address, limited range.
+    full_list=($(for X in {0..159} ; do echo ${X} | awk '{printf "%s%02X ", "4E:53:50:4F:4F:", $1}'; done ;))
+    ADDRESSES=("${ADDRESSES[@]}" "${full_list[@]}")
 }
 
-function set_addresses_for_shirt_color {
+function append_nintendo_mac_addresses {
+    # Taken from: https://docs.google.com/spreadsheet/ccc?key=0AvvH5W4E2lIwdEFCUkxrM085ZGp0UkZlenp6SkJablE#gid=0
+    # TODO: Read this from a file
+    local nintendo_list
+    echo "Adding Nintendo World addresses"
+    nintendo_list=()
+    nintendo_list[0]='00:0D:67:15:2D:82'
+    nintendo_list[1]='00:0D:67:15:D7:21'
+    nintendo_list[2]='00:0D:67:15:D5:44'
+    nintendo_list[3]='00:0D:67:15:D2:59'
+    nintendo_list[4]='00:0D:67:15:D6:FD'
+    ADDRESSES=("${ADDRESSES[@]}" "${nintendo_list[@]}")
+}
+
+function append_homepass_mac_addresses {
+    echo "Adding Homepass addresses"
+    append_sequence_of_16_addresses "4E:53:50:4F:4F:4"
+}
+
+function append_addresses_for_shirt_color {
+    echo "Adding addresses for shirt color: \"$1\""
     if [[ $1 == 'red' ]]; then
-        set_addresses_to_sequence_of_16 "4E:53:50:4F:43:0"
+        append_sequence_of_16_addresses "4E:53:50:4F:43:0"
     elif [[ $1 == 'orange' ]]; then
-        set_addresses_to_sequence_of_16 "4E:53:50:4F:43:1"
+        append_sequence_of_16_addresses "4E:53:50:4F:43:1"
     elif [[ $1 == 'yellow' ]]; then
-        set_addresses_to_sequence_of_16 "4E:53:50:4F:43:2"
+        append_sequence_of_16_addresses "4E:53:50:4F:43:2"
     elif [[ $1 == 'light_green' ]]; then
-        set_addresses_to_sequence_of_16 "4E:53:50:4F:43:3"
+        append_sequence_of_16_addresses "4E:53:50:4F:43:3"
     elif [[ $1 == 'green' ]]; then
-        set_addresses_to_sequence_of_16 "4E:53:50:4F:43:4"
+        append_sequence_of_16_addresses "4E:53:50:4F:43:4"
     elif [[ $1 == 'blue' ]]; then
-        set_addresses_to_sequence_of_16 "4E:53:50:4F:43:5"
+        append_sequence_of_16_addresses "4E:53:50:4F:43:5"
     elif [[ $1 == 'light_blue' ]]; then
-        set_addresses_to_sequence_of_16 "4E:53:50:4F:43:6"
+        append_sequence_of_16_addresses "4E:53:50:4F:43:6"
     elif [[ $1 == 'pink' ]]; then
-        set_addresses_to_sequence_of_16 "4E:53:50:4F:43:7"
+        append_sequence_of_16_addresses "4E:53:50:4F:43:7"
     elif [[ $1 == 'purple' ]]; then
-        set_addresses_to_sequence_of_16 "4E:53:50:4F:43:8"
+        append_sequence_of_16_addresses "4E:53:50:4F:43:8"
     elif [[ $1 == 'brown' ]]; then
-        set_addresses_to_sequence_of_16 "4E:53:50:4F:43:9"
+        append_sequence_of_16_addresses "4E:53:50:4F:43:9"
     elif [[ $1 == 'white' ]]; then
-        set_addresses_to_sequence_of_16 "4E:53:50:4F:43:A"
+        append_sequence_of_16_addresses "4E:53:50:4F:43:A"
     elif [[ $1 == 'black' ]]; then
-        set_addresses_to_sequence_of_16 "4E:53:50:4F:43:B"
+        append_sequence_of_16_addresses "4E:53:50:4F:43:B"
     else
         echo "Didn't recognize the shirt color $1"
-        ADDRESSES=()
+        # No-op
     fi
 }
 
-function spoof_addresses_for_gender {
-    echo "Connecting to the $1 gender Mii relays."
-    set_addresses_for_gender $1
-    spoof_addresses
-}
-
-function set_addresses_for_gender {
+function append_addresses_for_gender {
+    echo "Adding addresses for gender: \"$1\""
     if [[ $1 == 'male' ]]; then
-        set_addresses_to_sequence_of_16 "4E:53:50:4F:42:0"
+        append_sequence_of_16_addresses "4E:53:50:4F:42:0"
     elif [[ $1 == 'female' ]]; then
-        set_addresses_to_sequence_of_16 "4E:53:50:4F:42:1"
+        append_sequence_of_16_addresses "4E:53:50:4F:42:1"
     else
         echo "Didn't recognize the gender $1"
-        ADDRESSES=()
+        # No-op
     fi
 }
+
+#
+# SPOOF AND CLEANUP
+#
 
 # Spoof whatever is in the array ADDRESSES
 function spoof_addresses {
@@ -407,14 +400,14 @@ function usage {
 # during option parsing
 VERBOSITY=0
 
-while getopts hvscr:t: option
+while getopts hvsc:rt: option
 do
     case "${option}" in
         h) usage ; exit ;;
         v) VERBOSITY=1 ;;
         s) SPEAK=1 ;;
         c) COUNT=${OPTARG} ;;
-        r) echo "Not implemented yet"; RANDOMIZE=1 ;;
+        r) RANDOMIZE=1 ;;
         t) RELAY_TIME=${OPTARG} ;;
         *) usage ; exit 1 ;
     esac
@@ -459,27 +452,31 @@ SLEEP_TIME=1
 WAIT_TRIES=30
 # Should we randomize the order of addresses to try?
 RANDOMIZE=${RANDOMIZE-0}
+# How many addresses from the generated lists?
+COUNT=${COUNT-0}
 
 # TODO: Put the list of MACs into a sqlite3 db and query only oldest visited ones?
 # TODO: Back up existing Internet Sharing plist (this would allow us to set the SSID)
 # TODO: Copy settings in place of existing Internet Sharing plist
 
+# TODO: This section should only set the initial pool of addresses
+ADDRESSES=()
 if [[ $1 == "full" ]]; then
-    spoof_full_list_of_mac_addresses
+    append_full_list_of_mac_addresses
 elif [[ $1 == "nintendo" ]]; then
-    spoof_nintendo_mac_addresses
+    append_nintendo_mac_addresses
 elif [[ $1 == "homepass" ]]; then
-    spoof_homepass_mac_addresses
+    append_homepass_mac_addresses
 elif [[ $1 == "shirt" ]]; then
     if [[ -n $2 ]]; then
-        spoof_addresses_for_shirt_color $2
+        append_addresses_for_shirt_color $2
     else
         echo "No shirt color specified"
         exit 1
     fi
 elif [[ $1 == "gender" ]]; then
     if [[ -n $2 ]]; then
-        spoof_addresses_for_gender $2
+        append_addresses_for_gender $2
     else
         echo "No gender specified"
         exit 1
@@ -488,12 +485,19 @@ elif [[ $1 == "cleanup" ]]; then
     echo "Not doing anything, only cleaning up"
 elif [[ -n $1 ]]; then
     ADDRESSES=("$@")
-    spoof_addresses
 else
-    spoof_nintendo_mac_addresses
-    spoof_homepass_mac_addresses
+    append_nintendo_mac_addresses
+    append_homepass_mac_addresses
 fi
 
-# ... and we are done
+if [[ $RANDOMIZE == 1 ]]; then
+    shuffle_addresses
+fi
 
+if [[ $COUNT > 0 ]]; then
+    set_addresses_to_first_n $COUNT
+fi
+
+spoof_addresses
+# TODO: Should do this on exit, not as a naked call
 cleanup
