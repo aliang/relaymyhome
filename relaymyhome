@@ -468,7 +468,6 @@ RANDOMIZE=${RANDOMIZE-0}
 # How many addresses from the generated lists?
 COUNT=${COUNT-0}
 
-# TODO: Put the list of MACs into a sqlite3 db and query only oldest visited ones?
 # TODO: Back up existing Internet Sharing plist (this would allow us to set the SSID)
 # TODO: Copy settings in place of existing Internet Sharing plist
 
