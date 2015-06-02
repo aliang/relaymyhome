@@ -47,6 +47,16 @@ For those of you more comfortable on the command line, running `./relaymyhome -h
 What's New
 ==========
 
+**3.1.0**
+
+* Allow randomizing the order of address spoofing so you don't have to run into the same folks over and over
+* Count argument now applies to any set of addresses
+* Better signal handling for INT and TERM signals (it doesn't get stuck in the handler if you send the signal repeatedly)
+
+**3.0.2**
+
+* Cleanup work in preparation for big refactor
+
 **3.0.1**
 
 * Oops, now you can use the orange shirt MAC addresses
