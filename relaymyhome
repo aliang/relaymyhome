@@ -459,7 +459,6 @@ COUNT=${COUNT-0}
 # TODO: Back up existing Internet Sharing plist (this would allow us to set the SSID)
 # TODO: Copy settings in place of existing Internet Sharing plist
 
-# TODO: This section should only set the initial pool of addresses
 ADDRESSES=()
 if [[ $1 == "full" ]]; then
     append_full_list_of_mac_addresses
