@@ -197,10 +197,12 @@ function set_and_store_current_mac_address {
 # Stores the resulting mac address to $CURRENT_MAC
 function set_and_wait_for_mac_address_change {
     log "Setting and waiting for MAC address to change"
-    local targetMAC
+    local targetMAC wait_count
     targetMAC=$1
-    local wait_count
     wait_count=1
+    if [ $targetMAC == $CURRENT_MAC ]; then
+        return 0
+    fi
     while [ $targetMAC != $CURRENT_MAC ] && [ $wait_count -le $WAIT_TRIES ]; do
         printf "\rAttempt $wait_count of $WAIT_TRIES ($CURRENT_MAC -> $targetMAC)"
         sleep 1
