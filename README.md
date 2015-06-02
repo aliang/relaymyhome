@@ -31,16 +31,15 @@ Installation (Mac OS X 10.9 & 10.10)
 
 Basic Usage
 ===========
-1. From the directory where the **relaymyhome** file is located in Terminal, type one of the following:
-  * `sudo ./relaymyhome`: Connects to the [Nintendo World](https://docs.google.com/spreadsheet/lv?key=0AvvH5W4E2lIwdEFCUkxrM085ZGp0UkZlenp6SkJablE&f=true&noheader=true&gid=3) and [HomePass addresses](https://docs.google.com/spreadsheet/lv?key=0AvvH5W4E2lIwdEFCUkxrM085ZGp0UkZlenp6SkJablE&f=true&noheader=true&gid=0). There are 21 of them, and you can get special Miis available only via Nintendo World addresses if you set your SSID appropriately.
-  * `sudo ./relaymyhome full`: Connects to the addresses starting with 4E [listed here](https://docs.google.com/spreadsheet/lv?key=0AvvH5W4E2lIwdEFCUkxrM085ZGp0UkZlenp6SkJablE&f=true&noheader=true&gid=5). This could take a while!
+1. From the directory where the **relaymyhome** file is located in Terminal, type:
+  * `sudo ./relaymyhome`: This connects to the [Nintendo World](https://docs.google.com/spreadsheet/lv?key=0AvvH5W4E2lIwdEFCUkxrM085ZGp0UkZlenp6SkJablE&f=true&noheader=true&gid=3) and [HomePass addresses](https://docs.google.com/spreadsheet/lv?key=0AvvH5W4E2lIwdEFCUkxrM085ZGp0UkZlenp6SkJablE&f=true&noheader=true&gid=0). There are 21 of them, and you can get special Miis available only via Nintendo World addresses if you set your SSID appropriately.
 2. Press Enter to execute the command and you should see the script do its thing. If you get an error that stops the script, something went wrong. With 5 addresses, the script takes about 8 minutes to run, after which you should have a list full of StreetPass hits on your 3DS.
 3. Once you have greeted your new visitors in the StreetPass Plaza, you can run the script again to get another batch of StreetPasses. You should be able to run the script many times before you will need to wait for the eight hour cooldown on hitting the same relay twice.
 
 Advanced Usage
 ==============
 
-For those of you more comfortable on the command line, running `./relaymyhome -h` will display some usage help. You can specify the number of addresses to use in "full" mode, or specify MAC addresses to spoof.
+For those of you more comfortable on the command line, running `./relaymyhome -h` will display some usage help. You can specify the number of addresses to use, use specific addresses for shirt color or gender, spoof specific MAC addresses, and more!
 
 What's New
 ==========
